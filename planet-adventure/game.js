@@ -59,7 +59,7 @@ function killEnt(e){e.state='dead';e.t=0;if(e.decal)e.decal.cancel=true;play(e,'
 
 /* ---------- 애니메이션 ---------- */
 function mkActs(holder,anims,names){const mx=new THREE.AnimationMixer(holder);const acts={};for(const k in names){const c=findClip(anims,names[k]);if(c)acts[k]=mx.clipAction(c);}S.mixers.push(mx);return {mx,acts};}
-function play(o,name,fade,once,speed){const a=o.acts[name];if(!a||o.cur===name&&!once)return;const prev=o.acts[o.cur];if(once){a.reset();a.setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;}else a.setLoop(THREE.LoopRepeat,Infinity);a.timeScale=speed||1;a.enabled=true;a.play();if(prev&&prev!==a)a.crossFadeFrom(prev,fade||0.15,false);o.cur=name;}
+function play(o,name,fade,once,speed){const a=o.acts[name];if(!a)return;if(o.cur===name&&!once&&a.enabled&&a.getEffectiveWeight()>0.01)return;const f=fade||0.15;for(const k in o.acts){const b=o.acts[k];if(b!==a&&b.enabled)b.fadeOut(f);}if(once){a.reset();a.setLoop(THREE.LoopOnce,1);a.clampWhenFinished=true;}else{a.clampWhenFinished=false;if(!a.enabled||a.getEffectiveWeight()<=0.01)a.reset();a.setLoop(THREE.LoopRepeat,Infinity);}a.timeScale=speed||1;a.enabled=true;a.setEffectiveWeight(1);a.fadeIn(f).play();o.cur=name;}
 const MON={idle:'Idle',walk:'Walk',atk:'Bite_Front',hit:'HitRecieve',die:'Death',fly:'Flying'};
 
 /* ---------- 플레이어 ---------- */
@@ -82,7 +82,7 @@ if(sw){const s=sw.obj.clone();s.scale.setScalar(1.15/sw.box.getSize(V3(0,0,0)).y
 if(sh){const s=sh.obj.clone();s.scale.setScalar(0.72/200);attach(holder,'LeftHand',s,WT.shield);}}
 else{const st=makeStaff();tip=st.userData.tip;attach(holder,'RightHand',st,WT.staff);}}
 const ref={root,tumble,holder,mx:m.mx,acts:m.acts,cur:'',tip,fb,cls};play(ref,'idle',0);return ref;}
-async function setClass(cls){S.cls=cls;const ref=await makeHero(cls);if(pl.ref&&pl.ref.root.parent)pl.ref.root.parent.remove(pl.ref.root);pl.ref=ref;if(S.world)S.world.add(ref.root);
+async function setClass(cls){S.cls=cls;const ref=await makeHero(cls);if(pl.ref){if(pl.ref.root.parent)pl.ref.root.parent.remove(pl.ref.root);const i=S.mixers.indexOf(pl.ref.mx);if(i>=0)S.mixers.splice(i,1);}pl.ref=ref;if(S.world)S.world.add(ref.root);
 pl.mhp=cls==='warrior'?120:90;pl.hp=pl.mhp;$('clsName').textContent=cls==='warrior'?'전사':'마법사';}
 function aimAssist(){let best=null,bd=7;for(const e of S.ents){if(e.state==='dead')continue;const d=arc(pl.n,e.n)-e.spec.rad;if(d<bd){const dir=dirTo(pl.n,e.n);if(dir&&dir.dot(pl.f)>0.2){best=dir;bd=d;}}}return best;}
 function startAtk(kind){if(S.dead||!S.running||pl.roll>0||pl.atkT>0)return;const w=S.cls==='warrior';
@@ -258,7 +258,7 @@ for(const p of (Z.portals||[]))S.portals.push(makePortal(Object.assign({locked:!
 /* 몬스터 */
 if(Z.spawns){for(const [t,th,ph] of Z.spawns){const n=toN(th,ph);await spawnEnt(t,n,any(n).applyAxisAngle(n,Math.random()*6));}}
 if(name==='boss'){const n=toN(0.42,PI);const b=await spawnEnt('dragon',n,dirTo(n,toN(0,0))||any(n));if(b){b.awake=false;b.t=0;b.wait=1;b.p2=false;S.boss=b;b.lift=EN.dragon.fly;}}
-if(S.world&&pl.ref)world.add(pl.ref.root);
+if(S.world&&pl.ref){world.add(pl.ref.root);S.mixers.push(pl.ref.mx);}
 if(Z.night){const st=new THREE.Group();const sg=new THREE.SphereGeometry(0.14,6,6),sm=new THREE.MeshBasicMaterial({color:0xfff6c8,fog:false});for(let i=0;i<160;i++){const s=new THREE.Mesh(sg,sm);const a=rd()*PI*2,b=0.05+rd()*1.2;s.position.set(Math.cos(a)*95*Math.cos(b),8+Math.sin(b)*70,Math.sin(a)*95*Math.cos(b)-20);st.add(s);}world.add(st);
 const fire=new THREE.PointLight(0xff5a3a,2.4,34);fire.position.copy(wp(cN,7));world.add(fire);}
 $('zoneName').textContent=Z.n;updateQuest();$('bossBar').hidden=true;}
