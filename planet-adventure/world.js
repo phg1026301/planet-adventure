@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 const A=window.ASSETS;
-const R=26,C=new THREE.Vector3(0,-R,0);
+const R0=26,R=100000,C=new THREE.Vector3(0,-R,0); /* R이 아주 커서 사실상 평지. 구역 데이터의 각도는 R0=26 기준 거리로 환산 */
 const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const stage=document.getElementById('stage');
@@ -17,15 +17,15 @@ new ResizeObserver(resize).observe(stage);resize();
 /* ---------- 구체 위 수학 ---------- */
 const _x=V3(0,0,0),_m=new THREE.Matrix4(),_q=new THREE.Quaternion();
 function orient(o,n,f,lift){_x.crossVectors(n,f).normalize();_m.makeBasis(_x,n,f);o.quaternion.setFromRotationMatrix(_m);o.position.copy(C).addScaledVector(n,R+(lift||0));}
-function toN(th,ph){return V3(Math.sin(th)*Math.sin(ph),Math.cos(th),Math.sin(th)*Math.cos(ph));}
+function toN(th,ph){th=th*R0/R;return V3(Math.sin(th)*Math.sin(ph),Math.cos(th),Math.sin(th)*Math.cos(ph));}
 function arc(a,b){return R*Math.acos(clamp(a.dot(b),-1,1));}
-function dirTo(n,t,out){out=out||V3(0,0,0);out.copy(t).addScaledVector(n,-n.dot(t));const l=out.length();if(l<1e-6)return null;return out.multiplyScalar(1/l);}
+function dirTo(n,t,out){out=out||V3(0,0,0);out.copy(t).addScaledVector(n,-n.dot(t));const l=out.length();if(l<1e-11)return null;return out.multiplyScalar(1/l);}
 function stepOn(n,f,dist){const a=dist/R,c=Math.cos(a),s=Math.sin(a);const nn=V3(0,0,0).copy(n).multiplyScalar(c).addScaledVector(f,s);const ff=V3(0,0,0).copy(f).multiplyScalar(c).addScaledVector(n,-s);n.copy(nn).normalize();f.copy(ff).normalize();}
 /* n에서 방향 d(접선)로 dist만큼 이동하면서 따라 돌아야 하는 접선 벡터들을 함께 옮긴다 */
 function moveAlong(n,d,dist,carry){const n0=n.clone(),f=d.clone();stepOn(n,f,dist);_q.setFromUnitVectors(n0,n);carry.forEach(v=>{v.applyQuaternion(_q);v.addScaledVector(n,-n.dot(v)).normalize();});}
 function turnToward(f,t,n,maxAng){const ang=Math.atan2(n.dot(V3(0,0,0).crossVectors(f,t)),f.dot(t));const a=clamp(ang,-maxAng,maxAng);f.applyAxisAngle(n,a);f.addScaledVector(n,-n.dot(f)).normalize();return Math.abs(ang);}
 function rotAbout(v,axis,ang){return v.applyAxisAngle(axis,ang);}
-function pointAt(c,dist,bearing){const ax=V3(0,0,0).crossVectors(c,V3(0,1,0));if(ax.length()<1e-5)ax.set(1,0,0);ax.normalize();const p=c.clone().applyAxisAngle(ax,dist/R);return p.applyAxisAngle(c,bearing).normalize();}
+function pointAt(c,dist,bearing){const ax=V3(0,0,0).crossVectors(c,V3(0,1,0));if(ax.length()<1e-12)ax.set(1,0,0);ax.normalize();const p=c.clone().applyAxisAngle(ax,dist/R);return p.applyAxisAngle(c,bearing).normalize();}
 
 /* ---------- 에셋 로더 ---------- */
 const gltfL=new THREE.GLTFLoader(),fbxL=new THREE.FBXLoader(),texL=new THREE.TextureLoader();
@@ -59,9 +59,8 @@ function findClip(anims,name){return anims.find(x=>x.name.includes(name))||null;
 /* ---------- 타일 바닥 ---------- */
 const FS=72,FN=2048,FK=FN/FS,fcache={};
 function rnd(s){return()=>((s=(s*16807)%2147483647)/2147483647);}
-function planetGeo(){const g=new THREE.SphereGeometry(R,128,96),P=g.attributes.position,U=g.attributes.uv;
-for(let i=0;i<P.count;i++){const x=P.getX(i),y=P.getY(i),z=P.getZ(i),l=Math.hypot(x,y,z),th=Math.acos(Math.min(1,y/l)),sn=Math.hypot(x,z),s=R*th;
-const ux=sn>1e-6?s*x/sn:0,uz=sn>1e-6?s*z/sn:0;U.setXY(i,(ux+FS/2)/FS,1-(uz+FS/2)/FS);}return g;}
+function planetGeo(){const g=new THREE.PlaneGeometry(900,900,1,1);g.rotateX(-Math.PI/2);const P=g.attributes.position,U=g.attributes.uv;
+for(let i=0;i<P.count;i++){U.setXY(i,P.getX(i)/FS+0.5,0.5-P.getZ(i)/FS);}return g;}
 function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
 function shade(hex,a){const n=parseInt(hex.slice(1),16),f=1+a,c=v=>Math.max(0,Math.min(255,(v*f)|0));return 'rgb('+c(n>>16&255)+','+c(n>>8&255)+','+c(n&255)+')';}
 function paintFloor(z){const cv=document.createElement('canvas');cv.width=cv.height=FN;const g=cv.getContext('2d'),rd=rnd(z.length*131+7),X=u=>(u+FS/2)*FK;
@@ -103,7 +102,7 @@ village:{n:'마을',sky:0xbfe3f2,hemi:[0xffffff,0x7a9a6a,0.85],sun:1.05,center:[
  ['btree1',5,0.7,PI-0.5,0],['btree2',4.6,0.75,PI+0.5,1],['btree4',5.4,0.5,PI-1.25,2],['btree1',5,0.55,PI+1.45,0.5],['btree2',4.4,0.9,PI+0.05,2],
  ['bbush',1.1,0.18,PI-0.45,0],['bbush',1.0,0.23,PI+0.5,1],['bbush',1.2,0.4,PI-0.75,2],['brocks',0.9,0.3,PI-0.85,0]],
  scatter:[['flowers',0.55,24,0.06,0.5],['grass',0.45,30,0.05,0.7]],ring:['brocks','bbush','btree4'],
- npcs:[{k:'robot',h:1.55,th:0.13,ph:PI-0.42,spin:0.6,clip:'Wave',tint:0xff8fb5,talk:['안녕! 필드에서 몬스터 3마리를 잡으면 보스방 문이 열려.','Space로 구르면 잠깐 무적이 돼. 보스 공격은 타이밍을 보고 굴러봐.','다치면 우물에서 F를 눌러 쉬어. 체력이 가득 차.']}],
+ npcs:[{k:'robot',h:1.55,th:0.13,ph:PI-0.42,spin:0.6,clip:'Wave',tint:0xff8fb5,talk:['안녕! 필드에서 몬스터 3마리를 잡으면 보스방 문이 열려.','C로 구르면 잠깐 무적이 돼. 보스가 파동을 쏘면 Space로 점프해서 넘어가!','다치면 우물에서 F를 눌러 쉬어. 체력이 가득 차.']}],
  wells:[{th:0.2,ph:PI+0.05}],
  portals:[{id:'toField',th:0.3,ph:0,to:'field',label:'필드로 가는 문'}]},
 field:{n:'필드',sky:0xffe0c0,hemi:[0xfff2dd,0x8a9a5a,0.85],sun:1.1,center:[0.45,PI],L:22,
@@ -117,7 +116,7 @@ boss:{n:'보스방',sky:0x2b2650,hemi:[0x9a8aff,0x2a2040,0.8],sun:0.6,night:1,ce
 (function(){const it=ZONES.boss.items;for(let i=0;i<9;i++){const p=PI+(i-4)*0.34;it.push([i%4===1?'columnD':'column',i%4===1?3:4.4,0.58,p,-(p-PI)]);if(i%2===0&&i!==4)it.push(['banner',2.4,0.55,p+0.17,-(p-PI)]);}
 it.push(['statue',3,0.23,PI-0.58,0.58],['statue',3,0.23,PI+0.58,-0.58],['bricks',0.9,0.33,PI-0.85,0.4],['bricks',0.8,0.36,PI+0.9,1.2]);})();
 
-function floorXY(n){const th=Math.acos(clamp(n.y,-1,1)),sn=Math.hypot(n.x,n.z),s=R*th;return sn<1e-6?[0,0]:[s*n.x/sn,s*n.z/sn];}
+function floorXY(n){const sn=Math.hypot(n.x,n.z),th=Math.atan2(sn,n.y),s=R*th;return sn<1e-14?[0,0]:[s*n.x/sn,s*n.z/sn];}
 function onPath(zone,n){const [x,z]=floorXY(n);
 if(zone==='village'){const px=1.7*Math.sin(z*0.2);return (z<11&&z>-19&&Math.abs(x-px)<2.2)||Math.hypot(x,z+5.2)<5.9;}
 if(zone==='field'){const px=2.6*Math.sin(z*0.22+1);return z<14&&z>-40&&Math.abs(x-px)<1.9;}
