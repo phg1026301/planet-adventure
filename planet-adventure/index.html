@@ -1,0 +1,115 @@
+<meta charset="utf-8">
+<title>꼬마 행성 모험</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* 레이아웃: 화면 전체가 3D 무대, 위에 HUD가 얹힌다. 팔레트는 밤하늘 보라 + 크림 + 산호색 */
+:root{--night:#241f45;--night2:#17132e;--ink:#fff6df;--ink2:#cfc6ee;--coral:#ff7a6b;--sky:#6fd0ff;--gold:#ffd45a;--panel:rgba(30,25,60,.74);--line:rgba(255,246,223,.22);
+--display:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;--body:'Gowun Dodum','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);overflow:hidden;user-select:none;-webkit-user-select:none}
+#stage{position:absolute;inset:0;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+.g{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#hud{position:absolute;inset:0;pointer-events:none}
+#hud[hidden]{display:none}
+#tl{position:absolute;left:0;top:12px;width:min(300px,64vw);display:flex;flex-direction:column;gap:6px}
+#who{display:flex;align-items:baseline;gap:8px;font-family:var(--display);font-size:20px;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#who span{font-size:14px;color:var(--ink2)}
+.bar{position:relative;height:16px;border-radius:9px;background:rgba(0,0,0,.45);border:1.5px solid var(--line);overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:8px}
+.bar.hp i{background:var(--coral)}
+.bar.st i{background:var(--sky)}
+.bar.st{height:10px}
+.bar span{position:absolute;inset:0;font-size:11px;line-height:13px;text-align:center;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.6)}
+#quest{font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;line-height:1.4}
+#tr{position:absolute;right:0;top:12px;display:flex;gap:8px;pointer-events:auto}
+button{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--ink2)}
+button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+#bossBar{position:absolute;left:50%;transform:translateX(-50%);bottom:76px;width:min(560px,80vw);text-align:center}
+#bossBar[hidden]{display:none}
+#bossName{font-family:var(--display);font-size:18px;letter-spacing:.04em;text-shadow:0 2px 0 rgba(0,0,0,.45);margin-bottom:4px}
+#bossBar .bar{height:14px;border-radius:3px}
+#bossBar .bar i{border-radius:2px;background:linear-gradient(#ff9a6b,#e5473b)}
+#toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-family:var(--display);font-size:clamp(20px,4vw,30px);text-align:center;text-shadow:0 3px 0 rgba(0,0,0,.45);opacity:0;transition:opacity .25s;white-space:nowrap}
+#toast.on{opacity:1}
+#help{position:absolute;left:0;bottom:12px;font-size:12px;color:var(--ink2);line-height:1.55;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+#help b{color:var(--ink);font-weight:400;background:rgba(255,255,255,.14);border-radius:4px;padding:0 5px}
+#btns{position:absolute;right:0;bottom:12px;display:flex;gap:8px;pointer-events:auto}
+#btns button{width:58px;height:58px;border-radius:50%;padding:0;font-family:var(--display);font-size:15px;line-height:1.1}
+#lockMark{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border:3px solid var(--gold);transform:rotate(45deg);border-radius:4px;box-shadow:0 0 10px var(--gold)}
+#lockMark[hidden]{display:none}
+#floaters{position:absolute;inset:0;overflow:hidden}
+.fl{position:absolute;font-family:var(--display);font-size:20px;text-shadow:0 2px 0 rgba(0,0,0,.55);transform:translate(-50%,-50%);animation:fl .9s ease-out forwards;white-space:nowrap}
+@keyframes fl{to{transform:translate(-50%,-190%);opacity:0}}
+#ehp{position:absolute;width:56px;height:6px;margin:-6px 0 0 -28px;background:rgba(0,0,0,.55);border-radius:3px;overflow:hidden}
+#ehp[hidden]{display:none}
+#ehp i{display:block;height:100%;background:var(--coral)}
+#vig{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 120px 30px rgba(255,40,40,.0);transition:box-shadow .35s}
+#vig.on{box-shadow:inset 0 0 120px 30px rgba(255,40,40,.55);transition:none}
+#start,#over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,rgba(54,44,110,.92),rgba(20,16,40,.97))}
+#start[hidden],#over[hidden]{display:none}
+#over{background:rgba(10,8,24,.72);flex-direction:column;gap:6px;text-align:center}
+#over h2{font-family:var(--display);font-weight:400;font-size:clamp(40px,10vw,84px);margin:0;letter-spacing:.06em}
+#over p{margin:0;color:var(--ink2)}
+.card{width:min(560px,100%);padding-block:20px;display:flex;flex-direction:column;gap:14px;box-sizing:border-box}
+.card h1{font-family:var(--display);font-weight:400;font-size:clamp(34px,8vw,52px);margin:0;line-height:1.05;text-wrap:balance}
+.card p{margin:0;color:var(--ink2);line-height:1.6;font-size:15px}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick button{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:12px 14px;text-align:left;border-radius:14px;pointer-events:auto}
+.pick button b{font-family:var(--display);font-weight:400;font-size:22px}
+.pick button small{color:var(--ink2);font-size:12.5px;line-height:1.4}
+.pick button.on{border-color:var(--gold);background:rgba(255,212,90,.14)}
+#go{font-family:var(--display);font-size:22px;padding:12px 18px;background:var(--gold);color:#3a2a00;border:0;border-radius:14px}
+#go:disabled{background:rgba(255,246,223,.25);color:var(--ink2)}
+#load{height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+#load i{display:block;height:100%;width:0;background:var(--sky);transition:width .2s}
+.cred{font-size:11px;color:#9d93c8;line-height:1.55}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:13px;color:var(--ink2)}
+.keys b{font-weight:400;color:var(--ink)}
+#fade{position:absolute;inset:0;background:#0b0818;opacity:0;pointer-events:none;transition:opacity .35s}
+#fade.on{opacity:1}
+@media (max-width:560px){#help{display:none}#bossBar{bottom:84px}.pick{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.fl{animation-duration:.01s}}
+</style>
+<div id="stage"></div>
+<div id="floaters"></div>
+<div id="lockMark" hidden></div>
+<div id="ehp" hidden><i></i></div>
+<div id="vig"></div>
+<div id="hud" hidden>
+  <div id="tl" class="g">
+    <div id="who"><b id="clsName">전사</b><span id="zoneName">마을</span></div>
+    <div class="bar hp"><i id="hpFill"></i><span id="hpTxt"></span></div>
+    <div class="bar st"><i id="stFill"></i></div>
+    <div id="quest"></div>
+  </div>
+  <div id="tr" class="g"><button id="btnClass">직업 바꾸기</button><button id="btnSnd">소리 끄기</button></div>
+  <div id="bossBar" hidden><div id="bossName">하늘의 폭군 드래곤</div><div class="bar"><i id="bossFill"></i></div></div>
+  <div id="toast"></div>
+  <div id="help" class="g"><b>WASD</b> 이동 · <b>마우스 드래그</b> 카메라 · <b>클릭/J</b> 공격 · <b>우클릭/K</b> 스킬<br><b>Space</b> 구르기 · <b>Tab/R</b> 락온 · <b>F</b> 상호작용 · <b>← →</b> 카메라</div>
+  <div id="btns" class="g"><button id="bAtk">공격</button><button id="bSkill">스킬</button><button id="bRoll">구르기</button><button id="bLock">락온</button></div>
+</div>
+<div id="start"><div class="card g">
+  <h1>꼬마 행성 모험</h1>
+  <p>작은 행성 위의 마을에서 출발해 필드 몬스터를 잡고, 보스방의 드래곤을 쓰러뜨리는 3D 액션 게임이에요.</p>
+  <div class="pick"><button id="pWarrior" class="on"><b>전사</b><small>검과 방패로 가까이서 싸워요. 스킬은 충격파.</small></button><button id="pMage"><b>마법사</b><small>마법 구슬로 멀리서 싸워요. 스킬은 메테오.</small></button></div>
+  <div class="keys"><b>WASD</b><span>이동 (카메라 방향 기준)</span><b>클릭 · J</b><span>공격</span><b>우클릭 · K</b><span>스킬</span><b>Space</b><span>구르기 (구르는 동안 무적)</span><b>Tab · R</b><span>가까운 적 락온</span></div>
+  <div id="load"><i></i></div>
+  <button id="go" disabled>불러오는 중…</button>
+  <div class="cred">캐릭터 Mixamo 무료 에셋 · 몬스터, 나무, 풀, 무기 Quaternius (CC0) · 마을 건물 Babylon.js Village Pack (CC BY 4.0) · 보스방 Kenney (CC0) · 로봇 Tomás Laulhé (CC0)</div>
+</div></div>
+<div id="over" hidden><h2 id="overT"></h2><p id="overP"></p></div>
+<div id="fade"></div>
+<script src="lib/three.min.js"></script>
+<script src="lib/fflate.min.js"></script>
+<script src="lib/NURBSUtils.js"></script>
+<script src="lib/NURBSCurve.js"></script>
+<script src="lib/GLTFLoader.js"></script>
+<script src="lib/FBXLoader.js"></script>
+<script src="lib/SkeletonUtils.js"></script>
+<script src="assets.js"></script>
+<script src="world.js"></script>
+<script src="game.js"></script>
