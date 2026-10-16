@@ -24,6 +24,10 @@ body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);o
 .bar span{position:absolute;inset:0;font-size:11px;line-height:13px;text-align:center;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.6)}
 #quest{font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;line-height:1.4}
 #camMode{font-size:12px;color:var(--ink2);text-shadow:0 1px 2px rgba(0,0,0,.7)}
+#buff{font-size:13px;color:var(--gold);text-shadow:0 1px 2px rgba(0,0,0,.7);min-height:1em}
+#tip{position:fixed;z-index:5;max-width:min(280px,calc(100vw - 32px));padding:9px 12px;border-radius:10px;background:rgba(20,16,40,.94);border:1px solid var(--line);color:var(--ink);font-size:13px;line-height:1.5;white-space:pre-line;pointer-events:none;text-align:left}
+#tip b{display:block;font-family:var(--display);font-weight:400;font-size:15px;color:var(--gold);margin-bottom:2px}
+#tip[hidden]{display:none}
 #tr{position:absolute;right:0;top:12px;display:flex;gap:8px;pointer-events:auto}
 button{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer}
 button:hover{border-color:var(--ink2)}
@@ -86,6 +90,7 @@ button:disabled{opacity:.45;cursor:default}
     <div class="bar hp"><i id="hpFill"></i><span id="hpTxt"></span></div>
     <div class="bar st"><i id="stFill"></i></div>
     <div id="quest"></div>
+    <div id="buff"></div>
     <div id="camMode">카메라: 자동 (F5로 마우스 조작)</div>
   </div>
   <div id="tr" class="g"><button id="btnClass">직업 바꾸기</button><button id="btnSnd">소리 끄기</button></div>
@@ -104,6 +109,7 @@ button:disabled{opacity:.45;cursor:default}
   <div class="cred">캐릭터 Mixamo 무료 에셋 · 몬스터, 나무, 풀, 무기 Quaternius (CC0) · 마을 건물 Babylon.js Village Pack (CC BY 4.0) · 보스방 Kenney (CC0) · 로봇 Tomás Laulhé (CC0)</div>
 </div></div>
 <div id="over" hidden><h2 id="overT"></h2><p id="overP"></p></div>
+<div id="tip" hidden></div>
 <div id="fade"></div>
 <script src="lib/three.min.js"></script>
 <script src="lib/fflate.min.js"></script>

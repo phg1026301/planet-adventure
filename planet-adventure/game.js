@@ -4,7 +4,7 @@
 const {R,C,V3,clamp,renderer,scene,cam,orient,toN,arc,dirTo,moveAlong,stepOn,turnToward,pointAt,load,inst,findClip,ZONES,SOLID,rnd,PI,onPath}=W;
 const $=id=>document.getElementById(id);
 const S={zone:null,Z:null,world:null,cls:'warrior',running:false,kills:0,bossDead:false,t:0,ents:[],projs:[],fxs:[],decals:[],solids:[],portals:[],npcs:[],wells:[],mixers:[],lock:null,boss:null,switching:false,dead:false,sun:null,camPos:V3(0,6,8),camUp:V3(0,1,0),snap:true,talk:0,camAuto:true,waves:[]};
-const pl={n:V3(0,1,0),f:V3(0,0,-1),cf:V3(0,0,-1),hp:100,mhp:100,st:100,mst:100,stDelay:0,inv:0,roll:0,rollDir:V3(0,0,-1),jy:0,vy:0,spin:0,spinTick:0,spinFx:null,combo:0,comboT:0,atkLock:0,lungeT:0,lungeV:0,P:null,atkLen:1,atkDir:null,atkT:0,atkFire:0,atkDone:true,atkKind:'',skCd:0,pitch:0.5,flash:0,ref:null,act:''};
+const pl={n:V3(0,1,0),f:V3(0,0,-1),cf:V3(0,0,-1),hp:100,mhp:100,st:100,mst:100,stDelay:0,inv:0,roll:0,rollDir:V3(0,0,-1),jy:0,vy:0,jt:0,jland:0,jflip:0,god:0,spin:0,spinTick:0,spinFx:null,combo:0,comboT:0,atkLock:0,lungeT:0,lungeV:0,P:null,atkLen:1,atkDir:null,atkT:0,atkFire:0,atkDone:true,atkKind:'',skCd:0,pitch:0.5,flash:0,ref:null,act:''};
 const K={};const joy={x:0,y:0};
 const tmpv=V3(0,0,0);
 const any=n=>{const t=V3(0,0,0).crossVectors(n,V3(0,0,1));if(t.length()<1e-3)t.crossVectors(n,V3(1,0,0));return t.normalize();};
@@ -47,7 +47,7 @@ else{for(const e of S.ents){if(e.state==='dead')continue;if(arc(p.n,e.n)<p.rad+e
 if(p.life<=0)dead=true;if(dead){S.world.remove(p.m);S.projs.splice(i,1);}}}
 
 /* ---------- 데미지 ---------- */
-function hurt(d,srcN,kb){if(S.dead||pl.inv>0||!S.running)return false;pl.hp=Math.max(0,pl.hp-d);pl.inv=0.65;pl.flash=0.18;pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;$('vig').classList.add('on');setTimeout(()=>$('vig').classList.remove('on'),120);sfx('hurt');
+function hurt(d,srcN,kb){if(S.dead||pl.inv>0||pl.god>0||!S.running)return false;pl.hp=Math.max(0,pl.hp-d);pl.inv=0.65;pl.flash=0.18;pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;$('vig').classList.add('on');setTimeout(()=>$('vig').classList.remove('on'),120);sfx('hurt');
 floater(wp(pl.n,2.1),'-'+Math.round(d),'#ff7a6b');
 if(srcN){const dir=dirTo(pl.n,srcN);if(dir)moveAlong(pl.n,dir.negate(),kb||0.8,[pl.f,pl.cf,pl.rollDir]);}
 if(pl.hp<=0)die();return true;}
@@ -93,7 +93,7 @@ const CB={warrior:[null,
 {t:.9,fire:.42,ts:1.5,dmg:[54,66],lunge:1.1,r:4.0,dot:-.1,twist:0,lean:.5,hop:1,kb:2.6}],
 mage:[null,{t:.6,fire:.32,ts:3.0,dmg:[20,20],twist:-.3,lean:.1},{t:.58,fire:.3,ts:3.2,dmg:[24,24],twist:.35,lean:.1},{t:1.0,fire:.55,ts:2.1,dmg:[28,28],twist:0,lean:.3,hop:1}]};
 function startAtk(kind){if(S.dead||!S.running||pl.roll>0||pl.atkT>0||pl.atkLock>0||pl.spin>0)return;const w=S.cls==='warrior';
-if(kind==='skill'){if(pl.skCd>0){toast('스킬 준비 중',700);return;}if(pl.st<30){toast('스태미나 부족',600);return;}pl.st-=30;pl.stDelay=0.7;if(w){makeSpinFx();pl.spin=3;pl.spinTick=0;pl.skCd=7;pl.comboT=0;pl.combo=0;sfx('swing');toast('윈드밀!',900);return;}}
+if(kind==='skill'){if(pl.skCd>0){toast('스킬 준비 중',700);return;}if(pl.st<30){toast('스태미나 부족',600);return;}pl.st-=30;pl.stDelay=0.7;if(w){makeSpinFx();pl.god=5;pl.spin=3;pl.spinTick=0;pl.skCd=7;pl.comboT=0;pl.combo=0;sfx('swing');toast('윈드밀!',900);return;}}
 let P;if(kind==='atk'){pl.combo=pl.comboT>0?pl.combo%3+1:1;P=CB[S.cls][pl.combo];}
 else{pl.combo=0;P=w?{t:.77,fire:.38,ts:1.9,twist:0,lean:.2}:{t:.95,fire:.6,ts:2.6,twist:0,lean:.2};pl.skCd=w?4:5;}
 pl.comboT=0;pl.atkKind=kind;pl.atkDone=false;pl.P=P;pl.atkLen=P.t;pl.atkT=P.t;pl.atkFire=P.fire;pl.atkAge=0;
@@ -125,7 +125,8 @@ const d=decalRing(tn,3.4,0x6fd0ff,0.9,()=>{S.world.remove(meteor);ringBurst(tn,0
 for(const e of S.ents){if(e.state==='dead')continue;if(arc(tn,e.n)<3.4+e.spec.rad)hitEnt(e,58,tn,1.8);}});
 const upd=d.upd;d.upd=k=>{upd(k);meteor.position.copy(wp(tn,14*(1-k)*(1-k)+0.8));};}}
 
-function tryJump(){if(S.dead||!S.running||pl.jy>0||pl.roll>0)return;pl.vy=10.5;sfx('roll');ringBurst(pl.n,0.3,1.3,0xffffff,0.3,0.15);}
+const easeIO=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function tryJump(){if(S.dead||!S.running||pl.jy>0||pl.roll>0)return;pl.vy=10.5;pl.jt=0;pl.jflip=moveVec()&&!pl.atkT?1:0;sfx('roll');ringBurst(pl.n,0.3,1.3,0xffffff,0.3,0.15);}
 function tryRoll(){if(S.dead||!S.running||pl.roll>0||pl.jy>0.05)return;if(pl.st<22){toast('스태미나 부족',600);return;}
 pl.st-=22;pl.stDelay=0.6;pl.roll=0.45;pl.inv=Math.max(pl.inv,0.4);pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;endSpin();const dir=moveVec();if(dir)pl.rollDir.copy(dir);else pl.rollDir.copy(pl.f);sfx('roll');}
 function moveVec(){const ix=(K.ArrowRight?1:0)-(K.ArrowLeft?1:0)+joy.x,iz=(K.ArrowUp?1:0)-(K.ArrowDown?1:0)-joy.y;if(!ix&&!iz)return null;const right=V3(0,0,0).crossVectors(pl.cf,pl.n);const v=V3(0,0,0).addScaledVector(pl.cf,iz).addScaledVector(right,ix);if(v.length()<0.05)return null;return v.normalize();}
@@ -135,7 +136,7 @@ function interact(){if(!S.running||S.dead)return;for(const w of S.wells)if(arc(p
 for(const n of S.npcs)if(arc(pl.n,n.n)<3.8){toast(n.talk[S.talk++%n.talk.length],3200);return;}}
 
 function updatePlayer(dt){const ref=pl.ref;if(!ref)return;
-pl.inv=Math.max(0,pl.inv-dt);pl.skCd=Math.max(0,pl.skCd-dt);pl.stDelay-=dt;if(pl.stDelay<=0)pl.st=Math.min(pl.mst,pl.st+30*dt);pl.flash=Math.max(0,pl.flash-dt);
+pl.inv=Math.max(0,pl.inv-dt);pl.god=Math.max(0,pl.god-dt);pl.skCd=Math.max(0,pl.skCd-dt);pl.stDelay-=dt;if(pl.stDelay<=0)pl.st=Math.min(pl.mst,pl.st+30*dt);pl.flash=Math.max(0,pl.flash-dt);
 if(S.dead){orient(ref.root,pl.n,pl.f,0);return;}
 const mv=S.running?moveVec():null;
 if(S.running){if(S.camAuto){pl.pitch+=(0.5-pl.pitch)*Math.min(1,2*dt);if(mv&&pl.roll<=0&&pl.atkT<=0&&!(S.lock&&S.lock.state!=='dead')){const ang=Math.atan2(pl.n.dot(V3(0,0,0).crossVectors(pl.cf,mv)),pl.cf.dot(mv));if(Math.abs(ang)<1.75)pl.cf.applyAxisAngle(pl.n,Math.sin(ang)*1.35*dt);}}
@@ -148,7 +149,7 @@ if(pl.spin>0){pl.spin-=dt;pl.spinTick-=dt;if(pl.spinTick<=0){pl.spinTick=0.25;le
 pl.comboT=Math.max(0,pl.comboT-dt);pl.atkLock=Math.max(0,pl.atkLock-dt);
 if(S.running&&pl.atkT<=0&&(K.KeyZ||S.btnAtk||S.mouseAtk))startAtk('atk');
 if(pl.lungeT>0){const st=Math.min(pl.lungeT,dt);moveAlong(pl.n,pl.f.clone(),pl.lungeV*st,[pl.f,pl.cf,pl.rollDir]);pl.lungeT-=st;}
-if(pl.jy>0||pl.vy>0){pl.vy-=28*dt;pl.jy+=pl.vy*dt;if(pl.jy<=0){pl.jy=0;pl.vy=0;ringBurst(pl.n,0.3,1.1,0xffffff,0.25,0.15);}}
+if(pl.jy>0||pl.vy>0){pl.vy-=28*dt;pl.jy+=pl.vy*dt;if(pl.jy<=0){pl.jy=0;pl.vy=0;pl.jland=0.28;pl.jflip=0;ringBurst(pl.n,0.3,1.1,0xffffff,0.25,0.15);}else pl.jt+=dt;}pl.jland=Math.max(0,pl.jland-dt);
 if(dir&&speed>0)moveAlong(pl.n,dir,speed*dt,[pl.f,pl.cf,pl.rollDir]);
 /* 충돌과 경계 */
 for(const s of S.solids){const d=arc(pl.n,s.n);if(d<s.r+0.45){const dd=dirTo(pl.n,s.n);if(dd)moveAlong(pl.n,dd.negate(),(s.r+0.45)-d,[pl.f,pl.cf,pl.rollDir]);}}
@@ -162,19 +163,25 @@ orient(ref.root,pl.n,pl.f,pl.jy);
 if(pl.spinFx){orient(pl.spinFx,pl.n,pl.f,pl.jy);pl.spinFx.userData.sp.rotation.y+=16*dt;}
 if(pl.spin>0&&pl.roll<=0){ref.tumble.rotation.set(0.12,(S.t*18)%(2*PI),0);ref.tumble.position.y=0.9;}
 else if(pl.atkT>0&&pl.atkKind==='atk'&&pl.P&&pl.roll<=0){const pr=clamp(pl.atkAge/pl.atkLen,0,1),sn=Math.sin(pr*PI);ref.tumble.rotation.set(pl.P.lean*sn,pl.P.twist*sn,0);ref.tumble.position.y=0.9+(pl.P.hop?sn*0.45:0);}
+else if(pl.roll<=0&&pl.jy>0){const T=2*10.5/28,k=clamp(pl.jt/T,0,1),up=pl.vy>0;
+let rx;if(pl.jflip){rx=easeIO(clamp((k-0.08)/0.84,0,1))*PI*2;}else{rx=up?-0.12:0.22*Math.min(1,(1-k)*3);}
+ref.tumble.rotation.set(rx,0,0);const tuck=pl.jflip?Math.sin(clamp((k-0.08)/0.84,0,1)*PI)*0.18:0;
+ref.tumble.position.y=0.9-tuck;const sy=up?1.1:1.02,sxz=1/Math.sqrt(sy);ref.root.scale.set(sxz,sy,sxz);}
+else if(pl.roll<=0&&pl.jland>0){const q=pl.jland/0.28,s=Math.sin(q*PI/2);ref.tumble.rotation.set(0.15*s,0,0);ref.tumble.position.y=0.9-0.2*s;ref.root.scale.set(1+0.12*s,1-0.16*s,1+0.12*s);}
 else if(pl.roll<=0){ref.tumble.rotation.set(0,0,0);ref.tumble.position.y=0.9;}
+if(!(pl.jy>0||pl.jland>0))ref.root.scale.set(1,1,1);
 /* 애니메이션 */
 if(pl.atkT<=0&&pl.roll<=0&&ref.cur==='atk'&&(!ref.acts.atk||!ref.acts.atk.isRunning()||pl.atkT<=0)){}
 if(pl.roll>0)play(ref,'run',0.05,false,1.6);
 else if(pl.atkT>0){}
 else if(pl.spin>0)play(ref,'run',0.1,false,1.4);
-else if(pl.jy>0)play(ref,'idle',0.1,false,1);
+else if(pl.jy>0)play(ref,'run',0.1,false,pl.jflip?0.3:0.5);
 else if(mv)play(ref,'run',0.15,false,1);
 else play(ref,'idle',0.2,false,1);
 if(pl.atkT<=0&&ref.cur==='atk')ref.cur='';
-ref.holder.userData.mats.forEach(m=>m.emissive.setHex(pl.flash>0?0xaa2200:(pl.inv>0&&pl.roll<=0&&Math.floor(S.t*20)%2?0x333333:0)));
+ref.holder.userData.mats.forEach(m=>m.emissive.setHex(pl.flash>0?0xaa2200:(pl.god>0?0x4a3a00:pl.inv>0&&pl.roll<=0&&Math.floor(S.t*20)%2?0x333333:0)));
 }
-function die(){S.dead=true;S.lock=null;endSpin();play(pl.ref,'die',0.1,true);$('over').hidden=false;$('overT').textContent='쓰러졌어요';$('overP').textContent='마을에서 다시 시작해요';
+function die(){S.dead=true;S.lock=null;endSpin();pl.god=0;play(pl.ref,'die',0.1,true);$('over').hidden=false;$('overT').textContent='쓰러졌어요';$('overP').textContent='마을에서 다시 시작해요';
 setTimeout(()=>{if(!S.dead)return;$('over').hidden=true;pl.hp=pl.mhp;pl.st=pl.mst;S.dead=false;S.bossDead=false;goZone('village');},3200);}
 function victory(){setTimeout(()=>{$('over').hidden=false;$('overT').textContent='보스 처치!';$('overP').textContent='드래곤을 쓰러뜨렸어요. 가운데 문으로 마을에 돌아갈 수 있어요';sfx('win');},1400);
 setTimeout(()=>{$('over').hidden=true;},5200);
@@ -182,11 +189,11 @@ const c=S.cN;S.portals.push(makePortal({id:'toVillage',n:c.clone(),to:'village',
 
 /* ---------- 몬스터 ---------- */
 const EN={
-cactus:{a:'cactus',name:'선인장',h:1.5,hp:60,spd:3.2,aggro:12,kind:'melee',range:2.0,wind:0.75,cd:1.6,dmg:12,rad:0.7,r2:2.4,fly:0},
-alien:{a:'alien',name:'외계인',h:1.5,hp:50,spd:3.6,aggro:13,kind:'lunge',range:6,wind:0.7,cd:2.0,dmg:14,rad:0.7,dash:6,dashT:0.35,fly:0},
-mushroom:{a:'mushroom',name:'버섯',h:1.4,hp:80,spd:1.9,aggro:14,kind:'ranged',range:9,wind:0.9,cd:2.6,dmg:10,rad:0.8,proj:7,fly:0},
-bee:{a:'bee',name:'벌',h:1.2,hp:35,spd:5,aggro:15,kind:'lunge',range:7,wind:0.6,cd:1.8,dmg:10,rad:0.6,dash:7,dashT:0.3,fly:1.5},
-bat:{a:'bat',name:'박쥐',h:1.2,hp:30,spd:5.5,aggro:15,kind:'lunge',range:7,wind:0.55,cd:1.7,dmg:8,rad:0.6,dash:7,dashT:0.28,fly:1.9},
+cactus:{a:'cactus',name:'선인장',h:1.5,hp:60,spd:3.2,aggro:7,kind:'melee',range:2.0,wind:0.75,cd:1.6,dmg:12,rad:0.7,r2:2.4,fly:0},
+alien:{a:'alien',name:'외계인',h:1.5,hp:50,spd:3.6,aggro:7.5,kind:'lunge',range:6,wind:0.7,cd:2.0,dmg:14,rad:0.7,dash:6,dashT:0.35,fly:0},
+mushroom:{a:'mushroom',name:'버섯',h:1.4,hp:80,spd:1.9,aggro:7,kind:'ranged',range:9,wind:0.9,cd:2.6,dmg:10,rad:0.8,proj:7,fly:0},
+bee:{a:'bee',name:'벌',h:1.2,hp:35,spd:5,aggro:8,kind:'lunge',range:7,wind:0.6,cd:1.8,dmg:10,rad:0.6,dash:7,dashT:0.3,fly:1.5},
+bat:{a:'bat',name:'박쥐',h:1.2,hp:30,spd:5.5,aggro:8,kind:'lunge',range:7,wind:0.55,cd:1.7,dmg:8,rad:0.6,dash:7,dashT:0.28,fly:1.9},
 dragon:{a:'dragon',name:'하늘의 폭군 드래곤',h:4.6,hp:760,spd:3.4,aggro:99,kind:'boss',range:99,rad:2.3,fly:0.8}};
 async function spawnEnt(type,n,f){const spec=EN[type],a=await load(spec.a);if(!a)return null;
 const holder=inst(a,spec.h,{ownMat:true}),root=new THREE.Group();root.add(holder);S.world.add(root);
@@ -309,7 +316,8 @@ const locked=p.needKills&&S.kills<p.needKills;const col=locked?0xff5a5a:0x8fe3ff
 if(d<1.7){if(locked){if(S.t-(S.lastLockMsg||0)>2){S.lastLockMsg=S.t;toast('몬스터 '+p.needKills+'마리를 처치하면 열려요 ('+S.kills+'/'+p.needKills+')',2000);}}else{goZone(p.to);return;}}}}
 
 /* ---------- HUD, 카메라 ---------- */
-function hud(){$('hpFill').style.width=(pl.hp/pl.mhp*100)+'%';$('hpTxt').textContent=Math.ceil(pl.hp)+' / '+pl.mhp;$('stFill').style.width=(pl.st/pl.mst*100)+'%';
+function hud(){{const sb=$('bSkill'),t=pl.skCd>0?Math.ceil(pl.skCd)+'초':'스킬';if(sb.textContent!==t)sb.textContent=t;const bf=$('buff'),bt=pl.god>0?'무적 '+pl.god.toFixed(1)+'초':'';if(bf.textContent!==bt)bf.textContent=bt;}
+$('hpFill').style.width=(pl.hp/pl.mhp*100)+'%';$('hpTxt').textContent=Math.ceil(pl.hp)+' / '+pl.mhp;$('stFill').style.width=(pl.st/pl.mst*100)+'%';
 const b=S.boss;if(b&&b.awake){$('bossFill').style.width=Math.max(0,b.hp/b.mhp*100)+'%';if(b.state==='dead')$('bossBar').hidden=true;}
 const lm=$('lockMark'),eh=$('ehp');if(S.lock&&S.lock.state!=='dead'&&S.running){const e=S.lock,s=toScreen(wp(e.n,e.lift+e.spec.h*0.6));if(s.z<1){lm.hidden=false;lm.style.left=s.x+'px';lm.style.top=s.y+'px';
 if(!e.boss){const s2=toScreen(wp(e.n,e.lift+e.spec.h+0.5));eh.hidden=false;eh.style.left=s2.x+'px';eh.style.top=s2.y+'px';eh.firstChild.style.width=(e.hp/e.mhp*100)+'%';}else eh.hidden=true;}else{lm.hidden=true;eh.hidden=true;}}else{lm.hidden=true;eh.hidden=true;}}
@@ -339,6 +347,12 @@ if((drag.moved>4||drag.t===1)&&(drag.t===1||!S.camAuto)){pl.cf.applyAxisAngle(pl
 const up=e=>{if(!drag||drag.id!==e.pointerId)return;S.mouseAtk=false;if(drag.t===0&&drag.moved<6){if(drag.b===2)startAtk('skill');else if(drag.b===0&&!S.camAuto)startAtk('atk');}if(drag.t===1&&drag.left){joy.x=joy.y=0;}drag=null;};
 st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
 {const b=$('bAtk');b.onpointerdown=e=>{e.preventDefault();S.btnAtk=true;startAtk('atk');};['onpointerup','onpointerleave','onpointercancel'].forEach(k=>b[k]=()=>{S.btnAtk=false;});}$('bSkill').onclick=()=>startAtk('skill');$('bRoll').onclick=()=>tryRoll();$('bJump').onclick=()=>tryJump();$('bLock').onclick=()=>toggleLock();
+{const TIPS=()=>({bAtk:'기본공격 (Z / 마우스 클릭)\n꾹 누르면 연속 공격해요. 1·2·3타로 이어지고 3타가 가장 강해요. 스태미나 소모 없음.',
+bSkill:S.cls==='warrior'?'윈드밀 (X)\n3초 동안 회전하며 주변 적을 0.25초마다 베어요. 도는 중에도 이동할 수 있어요.\n사용한 순간부터 5초 동안 무적이에요.\n스태미나 30 · 재사용 7초':'메테오 (X)\n조준한 곳에 운석을 떨어뜨려 넓은 범위에 큰 피해를 줘요.\n스태미나 30 · 재사용 5초',
+bJump:'점프 (Space)\n보스의 파동처럼 낮게 깔리는 공격을 넘어가요.',bRoll:'구르기 (C)\n구르는 동안 무적이에요. 스태미나 22.',bLock:'락온 (Tab / R)\n가까운 적을 조준해요. 다시 누르면 해제돼요.'});
+const tip=$('tip');for(const id of ['bAtk','bSkill','bJump','bRoll','bLock']){const b=$(id);
+b.addEventListener('mouseenter',()=>{const ln=TIPS()[id].split('\n');tip.textContent='';const h=document.createElement('b');h.textContent=ln[0];tip.append(h,document.createTextNode(ln.slice(1).join('\n')));tip.hidden=false;const r=b.getBoundingClientRect();tip.style.right=Math.max(16,innerWidth-r.right)+'px';tip.style.bottom=(innerHeight-r.top+10)+'px';});
+b.addEventListener('mouseleave',()=>{tip.hidden=true;});}}
 $('btnSnd').onclick=()=>{soundOn=!soundOn;$('btnSnd').textContent=soundOn?'소리 끄기':'소리 켜기';};
 $('btnClass').onclick=async()=>{if(S.zone!=='village'){toast('직업은 마을에서만 바꿀 수 있어요',1600);return;}const c=S.cls==='warrior'?'mage':'warrior';toast('불러오는 중…',1000);await setClass(c);if(S.world)S.world.add(pl.ref.root);toast(c==='warrior'?'전사로 바꿨어요':'마법사로 바꿨어요',1400);};
 
