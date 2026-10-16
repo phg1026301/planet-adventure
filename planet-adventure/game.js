@@ -131,7 +131,9 @@ function tryRoll(){if(S.dead||!S.running||pl.roll>0||pl.jy>0.05)return;if(pl.st<
 pl.st-=22;pl.stDelay=0.6;pl.roll=0.45;pl.inv=Math.max(pl.inv,0.4);pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;endSpin();const dir=moveVec();if(dir)pl.rollDir.copy(dir);else pl.rollDir.copy(pl.f);sfx('roll');}
 function moveVec(){const ix=(K.ArrowRight?1:0)-(K.ArrowLeft?1:0)+joy.x,iz=(K.ArrowUp?1:0)-(K.ArrowDown?1:0)-joy.y;if(!ix&&!iz)return null;const right=V3(0,0,0).crossVectors(pl.cf,pl.n);const v=V3(0,0,0).addScaledVector(pl.cf,iz).addScaledVector(right,ix);if(v.length()<0.05)return null;return v.normalize();}
 function toggleLock(){if(S.lock){S.lock=null;return;}let best=null,bd=24;for(const e of S.ents){if(e.state==='dead')continue;const d=arc(pl.n,e.n);if(d<bd){bd=d;best=e;}}S.lock=best;}
-function toggleCam(){S.camAuto=!S.camAuto;const el=$('camMode');if(el)el.textContent=S.camAuto?'카메라: 자동 (F5로 마우스 조작)':'카메라: 마우스 조작 (F5로 자동)';toast(S.camAuto?'카메라 자동':'카메라 수동: 마우스 드래그로 돌려요',1400);}
+S.camMode=0;S.quarter=false;S.qk=0;S.calm=true;const QB=V3(-0.7071,0,-0.7071);
+const CAMTXT=['카메라: 자동 (F5: 마우스 조작)','카메라: 마우스 조작 (F5: 쿼터뷰)','카메라: 쿼터뷰 (F5: 자동)'],CAMTOAST=['카메라 자동','카메라 수동: 마우스 드래그로 돌려요','쿼터뷰: 맵 전체가 보여요'];
+function toggleCam(){S.camMode=(S.camMode+1)%3;S.camAuto=S.camMode===0;S.quarter=S.camMode===2;const el=$('camMode');if(el)el.textContent=CAMTXT[S.camMode];toast(CAMTOAST[S.camMode],1400);}
 function interact(){if(!S.running||S.dead)return;for(const w of S.wells)if(arc(pl.n,w)<3.6){pl.hp=pl.mhp;pl.st=pl.mst;toast('우물물을 마시고 체력이 가득 찼어요',1800);ringBurst(pl.n,0.5,2.5,0x6fd0ff,0.6,0.2);return;}
 for(const n of S.npcs)if(arc(pl.n,n.n)<3.8){toast(n.talk[S.talk++%n.talk.length],3200);return;}}
 
@@ -139,7 +141,7 @@ function updatePlayer(dt){const ref=pl.ref;if(!ref)return;
 pl.inv=Math.max(0,pl.inv-dt);pl.god=Math.max(0,pl.god-dt);pl.skCd=Math.max(0,pl.skCd-dt);pl.stDelay-=dt;if(pl.stDelay<=0)pl.st=Math.min(pl.mst,pl.st+30*dt);pl.flash=Math.max(0,pl.flash-dt);
 if(S.dead){orient(ref.root,pl.n,pl.f,0);return;}
 const mv=S.running?moveVec():null;
-if(S.running){if(S.camAuto){pl.pitch+=(0.5-pl.pitch)*Math.min(1,2*dt);if(mv&&pl.roll<=0&&pl.atkT<=0&&!(S.lock&&S.lock.state!=='dead')){const ang=Math.atan2(pl.n.dot(V3(0,0,0).crossVectors(pl.cf,mv)),pl.cf.dot(mv));if(Math.abs(ang)<1.75)pl.cf.applyAxisAngle(pl.n,Math.sin(ang)*1.35*dt);}}
+if(S.running){if(S.quarter){const b=QB.clone();b.addScaledVector(pl.n,-b.dot(pl.n));if(b.lengthSq()>1e-6)pl.cf.copy(b.normalize());}if(S.camAuto){pl.pitch+=(0.5-pl.pitch)*Math.min(1,2*dt);if(mv&&pl.roll<=0&&pl.atkT<=0&&!(S.lock&&S.lock.state!=='dead')){const ang=Math.atan2(pl.n.dot(V3(0,0,0).crossVectors(pl.cf,mv)),pl.cf.dot(mv));if(Math.abs(ang)<1.75)pl.cf.applyAxisAngle(pl.n,Math.sin(ang)*1.35*dt);}}
 if(S.lock&&S.lock.state!=='dead'){if(arc(pl.n,S.lock.n)>34)S.lock=null;else{const d=dirTo(pl.n,S.lock.n);if(d)turnToward(pl.cf,d,pl.n,4.5*dt);}}}
 let speed=0,dir=null;
 if(pl.roll>0){pl.roll-=dt;speed=11;dir=pl.rollDir;const k=1-Math.max(0,pl.roll)/0.45;ref.tumble.rotation.x=k*PI*2;ref.tumble.position.y=0.9-Math.sin(k*PI)*0.15;if(pl.roll<=0){ref.tumble.rotation.x=0;ref.tumble.position.y=0.9;}}
@@ -321,10 +323,12 @@ $('hpFill').style.width=(pl.hp/pl.mhp*100)+'%';$('hpTxt').textContent=Math.ceil(
 const b=S.boss;if(b&&b.awake){$('bossFill').style.width=Math.max(0,b.hp/b.mhp*100)+'%';if(b.state==='dead')$('bossBar').hidden=true;}
 const lm=$('lockMark'),eh=$('ehp');if(S.lock&&S.lock.state!=='dead'&&S.running){const e=S.lock,s=toScreen(wp(e.n,e.lift+e.spec.h*0.6));if(s.z<1){lm.hidden=false;lm.style.left=s.x+'px';lm.style.top=s.y+'px';
 if(!e.boss){const s2=toScreen(wp(e.n,e.lift+e.spec.h+0.5));eh.hidden=false;eh.style.left=s2.x+'px';eh.style.top=s2.y+'px';eh.firstChild.style.width=(e.hp/e.mhp*100)+'%';}else eh.hidden=true;}else{lm.hidden=true;eh.hidden=true;}}else{lm.hidden=true;eh.hidden=true;}}
-function updateCamera(dt){const P=wp(pl.n,pl.jy*0.4),d=6.4,back=d*Math.cos(pl.pitch),up=1.1+d*Math.sin(pl.pitch);
+function updateCamera(dt){S.qk+=((S.quarter?1:0)-S.qk)*Math.min(1,2.6*dt);const q=S.qk,ease=q*q*(3-2*q);
+const P=wp(pl.n,pl.jy*(S.calm?0.12:0.4)),d=6.4+(19-6.4)*ease,ptc=pl.pitch+(0.98-pl.pitch)*ease,back=d*Math.cos(ptc),up=1.1+d*Math.sin(ptc);
+const fv=(S.calm?48:55)+(S.quarter?2:0);if(Math.abs(cam.fov-fv)>0.05){cam.fov+=(fv-cam.fov)*Math.min(1,6*dt);cam.updateProjectionMatrix();}
 const tgt=P.clone().addScaledVector(pl.cf,-back).addScaledVector(pl.n,up);
 if(S.snap){S.camPos.copy(tgt);S.camUp.copy(pl.n);S.snap=false;}
-const k=1-Math.exp(-9*dt);S.camPos.lerp(tgt,k);S.camUp.lerp(pl.n,1-Math.exp(-6*dt)).normalize();
+const trans=Math.abs((S.quarter?1:0)-S.qk)>0.02,k=1-Math.exp(-(trans?4.5:S.calm?11:9)*dt);S.camPos.lerp(tgt,k);S.camUp.lerp(pl.n,1-Math.exp(-6*dt)).normalize();
 cam.position.copy(S.camPos);cam.up.copy(S.camUp);const look=P.clone().addScaledVector(pl.n,1.4);
 if(S.lock&&S.lock.state!=='dead')look.lerp(wp(S.lock.n,S.lock.lift+1),0.3);
 cam.lookAt(look);
@@ -343,7 +347,7 @@ st.addEventListener('contextmenu',e=>e.preventDefault());
 st.addEventListener('pointerdown',e=>{if(!S.running)return;if(e.pointerType==='touch'){const left=e.clientX<innerWidth*0.5;drag={t:1,x:e.clientX,y:e.clientY,left,id:e.pointerId,ox:e.clientX,oy:e.clientY,moved:0};}else{drag={t:0,x:e.clientX,y:e.clientY,b:e.button,moved:0,id:e.pointerId};if(e.button===0&&S.camAuto){S.mouseAtk=true;startAtk('atk');}}try{st.setPointerCapture(e.pointerId);}catch(_){}});
 st.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.moved+=Math.abs(dx)+Math.abs(dy);
 if(drag.t===1&&drag.left){joy.x=clamp((e.clientX-drag.ox)/50,-1,1);joy.y=clamp((e.clientY-drag.oy)/50,-1,1);if(Math.hypot(joy.x,joy.y)<0.2){joy.x=joy.y=0;}return;}
-if((drag.moved>4||drag.t===1)&&(drag.t===1||!S.camAuto)){pl.cf.applyAxisAngle(pl.n,-dx*0.0055);pl.pitch=clamp(pl.pitch-dy*0.004,0.18,1.05);}drag.x=e.clientX;drag.y=e.clientY;});
+if((drag.moved>4||drag.t===1)&&(drag.t===1||!S.camAuto)&&!S.quarter){pl.cf.applyAxisAngle(pl.n,-dx*0.0055);pl.pitch=clamp(pl.pitch-dy*0.004,0.18,1.05);}drag.x=e.clientX;drag.y=e.clientY;});
 const up=e=>{if(!drag||drag.id!==e.pointerId)return;S.mouseAtk=false;if(drag.t===0&&drag.moved<6){if(drag.b===2)startAtk('skill');else if(drag.b===0&&!S.camAuto)startAtk('atk');}if(drag.t===1&&drag.left){joy.x=joy.y=0;}drag=null;};
 st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
 {const b=$('bAtk');b.onpointerdown=e=>{e.preventDefault();S.btnAtk=true;startAtk('atk');};['onpointerup','onpointerleave','onpointercancel'].forEach(k=>b[k]=()=>{S.btnAtk=false;});}$('bSkill').onclick=()=>startAtk('skill');$('bRoll').onclick=()=>tryRoll();$('bJump').onclick=()=>tryJump();$('bLock').onclick=()=>toggleLock();
@@ -353,6 +357,7 @@ bJump:'점프 (Space)\n보스의 파동처럼 낮게 깔리는 공격을 넘어�
 const tip=$('tip');for(const id of ['bAtk','bSkill','bJump','bRoll','bLock']){const b=$(id);
 b.addEventListener('mouseenter',()=>{const ln=TIPS()[id].split('\n');tip.textContent='';const h=document.createElement('b');h.textContent=ln[0];tip.append(h,document.createTextNode(ln.slice(1).join('\n')));tip.hidden=false;const r=b.getBoundingClientRect();tip.style.right=Math.max(16,innerWidth-r.right)+'px';tip.style.bottom=(innerHeight-r.top+10)+'px';});
 b.addEventListener('mouseleave',()=>{tip.hidden=true;});}}
+$('btnCalm').onclick=()=>{S.calm=!S.calm;$('btnCalm').textContent=S.calm?'멀미 완화: 켜짐':'멀미 완화: 꺼짐';};
 $('btnSnd').onclick=()=>{soundOn=!soundOn;$('btnSnd').textContent=soundOn?'소리 끄기':'소리 켜기';};
 $('btnClass').onclick=async()=>{if(S.zone!=='village'){toast('직업은 마을에서만 바꿀 수 있어요',1600);return;}const c=S.cls==='warrior'?'mage':'warrior';toast('불러오는 중…',1000);await setClass(c);if(S.world)S.world.add(pl.ref.root);toast(c==='warrior'?'전사로 바꿨어요':'마법사로 바꿨어요',1400);};
 
