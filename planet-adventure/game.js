@@ -1,7 +1,7 @@
 /* 게임: 플레이어, 전투, 몬스터, 보스, HUD, 구역 이동 */
 (function(){
 'use strict';
-const {R,C,V3,clamp,renderer,scene,cam,orient,toN,arc,dirTo,moveAlong,stepOn,turnToward,pointAt,load,inst,findClip,ZONES,SOLID,rnd,PI,onPath}=W;
+const {SOLID_X,R,C,V3,clamp,renderer,scene,cam,orient,toN,arc,dirTo,moveAlong,stepOn,turnToward,pointAt,load,inst,findClip,ZONES,SOLID,rnd,PI,onPath}=W;
 const $=id=>document.getElementById(id);
 const S={zone:null,Z:null,world:null,cls:'warrior',running:false,kills:0,bossDead:false,t:0,ents:[],projs:[],fxs:[],decals:[],solids:[],portals:[],npcs:[],wells:[],mixers:[],lock:null,boss:null,switching:false,dead:false,sun:null,camPos:V3(0,6,8),camUp:V3(0,1,0),snap:true,talk:0,camAuto:true,waves:[]};
 const pl={n:V3(0,1,0),f:V3(0,0,-1),cf:V3(0,0,-1),hp:100,mhp:100,st:100,mst:100,stDelay:0,inv:0,roll:0,rollDir:V3(0,0,-1),jy:0,vy:0,jt:0,jland:0,jflip:0,god:0,spin:0,spinTick:0,spinFx:null,combo:0,comboT:0,atkLock:0,lungeT:0,lungeV:0,P:null,atkLen:1,atkDir:null,atkT:0,atkFire:0,atkDone:true,atkKind:'',skCd:0,pitch:0.5,flash:0,ref:null,act:''};
@@ -65,25 +65,54 @@ function play(o,name,fade,once,speed){const a=o.acts[name];if(!a)return;if(o.cur
 const MON={idle:'Idle',walk:'Walk',atk:'Bite_Front',hit:'HitRecieve',die:'Death',fly:'Flying'};
 
 /* ---------- 플레이어 ---------- */
-const WT={sword:{p:[0,8,0],r:[PI/2,0,0]},shield:{p:[0,6,0],r:[0,-PI/2,0]},staff:{p:[0,8,0],r:[0,0,-PI/2]}};
+const WT={sword:{p:[0,0,0],r:[0,0,-PI/2]},shield:{p:[0,0,0],r:[0,0,0]},staff:{p:[0,0,0],r:[0,0,0]}};
 function attach(root,bone,obj,cfg){const b=root.getObjectByName(bone);if(!b)return null;const ws=V3(0,0,0);b.getWorldScale(ws);const w=new THREE.Group();w.scale.setScalar(1/ws.x);w.position.set(...cfg.p);w.rotation.set(...cfg.r);w.add(obj);b.add(w);return w;}
 function makeStaff(){const g=new THREE.Group(),wood=new THREE.MeshToonMaterial({color:0xb98a55,emissive:0x2a1608});
 const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.028,1.55,10),wood);shaft.position.y=0.4;g.add(shaft);
 const claw=new THREE.Mesh(new THREE.TorusGeometry(0.1,0.017,8,16),wood);claw.position.y=1.14;claw.rotation.x=PI/2;g.add(claw);
 const tip=new THREE.Mesh(new THREE.SphereGeometry(0.1,16,12),new THREE.MeshBasicMaterial({color:0x9ee8ff}));tip.position.y=1.22;g.add(tip);
 const halo=new THREE.Mesh(new THREE.SphereGeometry(0.19,16,12),bm(0x6fd0ff,0.3));halo.position.y=1.22;g.add(halo);g.userData.tip=tip;return g;}
+const RT={};
 async function makeHero(cls){
 const a0=await load(cls),a=a0||await load('robot'),fb=!a0;
+let anims=a.anims;if(!fb){const g=await load('animGen'),m=await load('animMove');anims=[].concat(g?g.anims:[],m?m.anims:[]);}
+const aa=Object.assign({},a,{anims});
 const root=new THREE.Group(),tumble=new THREE.Group();tumble.position.y=0.9;
-const holder=inst(a,cls==='mage'?1.9:1.8,{ownMat:true,tint:fb?(cls==='mage'?0x6a8cff:0xff6a5a):0,tintAmt:0.6});holder.position.y=-0.9;tumble.add(holder);root.add(tumble);
-const nm=fb?{idle:'Idle',walk:'Walking',run:'Running',atk:'Punch',die:'Death'}:{idle:'Idle',walk:'Walk',run:'Run',atk:'Attack',die:'Death'};
-const m=mkActs(holder,a.anims,nm,!fb);
-root.updateMatrixWorld(true);let tip=null;
-if(!fb){if(cls==='warrior'){const sw=await load('sword'),sh=await load('shield');
-if(sw){const s=sw.obj.clone();s.scale.setScalar(1.15/sw.box.getSize(V3(0,0,0)).y);attach(holder,'RightHand',s,WT.sword);}
-if(sh){const s=sh.obj.clone();s.scale.setScalar(0.72/200);attach(holder,'LeftHand',s,WT.shield);}}
-else{const st=makeStaff();tip=st.userData.tip;attach(holder,'RightHand',st,WT.staff);}}
-const ref={root,tumble,holder,mx:m.mx,acts:m.acts,cur:'',tip,fb,cls};play(ref,'idle',0);return ref;}
+const holder=inst(aa,cls==='mage'?1.85:1.8,{ownMat:true,tint:fb?(cls==='mage'?0x6a8cff:0xff6a5a):0,tintAmt:0.6});holder.position.y=-0.9;tumble.add(holder);root.add(tumble);
+const nm=fb?{idle:'Idle',walk:'Walking',run:'Running',atk:'Punch',die:'Death'}:{idle:'Idle_A',walk:'Walking_A',run:'Running_A',jump:'Jump_Idle',hit:'Hit_A',die:'Death_A'};
+let rtOK=false;if(!fb&&cls==='warrior'){try{if(!RT[cls]){const u=await load(cls==='warrior'?'ualSword':'ualMage');if(u){RT[cls]=retargetClips(u.obj,u.anims,holder.userData.inner,cls==='warrior'?['Sword_Regular_A','Sword_Regular_B','Sword_Regular_C','Sword_Heavy_Combo']:['Spell_Simple_Shoot']);}}
+if(RT[cls]&&RT[cls].length){RT[cls].forEach(c=>aa.anims.push(c));rtOK=true;}}catch(e){console.warn('retarget',e);}}
+if(rtOK){if(cls==='warrior'){nm.atk1='RT_Sword_Regular_A';nm.atk2='RT_Sword_Regular_B';nm.atk3='RT_Sword_Regular_C';nm.skill='RT_Sword_Heavy_Combo';}else{nm.atk1=nm.atk2=nm.atk3=nm.skill='RT_Spell_Simple_Shoot';}}
+const m=mkActs(holder,aa.anims,nm,false);
+holder.updateMatrixWorld(true);let tip=null,rw=null;
+if(!fb){const hs=holder.userData.inner;
+if(cls==='warrior'){const sw=await load('sword'),sh=await load('shield');
+if(sw){const s=sw.obj.clone();s.scale.setScalar(1);rw=attach(hs,'handslotr',s,WT.sword);}
+if(sh){const s=sh.obj.clone();attach(hs,'handslotl',s,WT.shield);}}
+else{const st=await load('staff');if(st){const s=st.obj.clone();rw=attach(hs,'handslotr',s,WT.staff);const tp=new THREE.Mesh(new THREE.SphereGeometry(0.01),new THREE.MeshBasicMaterial({visible:false}));s.add(tp);tp.position.set(0,0.9,0);tip=tp;}}}
+const bone=n=>holder.userData.inner.getObjectByName(n);
+const ref={root,tumble,holder,mx:m.mx,acts:m.acts,cur:'',tip,fb,cls,rw,bones:fb?null:{ur:bone('upperarmr'),lr:bone('lowerarmr'),ul:bone('upperarml'),ll:bone('lowerarml'),ch:bone('chest'),hips:bone('hips')}};play(ref,'idle',0);return ref;}
+/* 팔 자세: 애니메이션 위에 모델 기준 축으로 덧씌운다 (x=앞뒤 휘두름, y=좌우 휘두름, z=옆으로 벌림) */
+const _q1=new THREE.Quaternion(),_q2=new THREE.Quaternion(),_q3=new THREE.Quaternion(),_e=new THREE.Euler(),_h=new THREE.Quaternion();
+function boneAdd(ref,b,rx,ry,rz){if(!b||!b.parent)return;b.updateWorldMatrix(true,false);_h.copy(ref.holder.getWorldQuaternion(_q3)).invert();
+b.getWorldQuaternion(_q1);_q1.premultiply(_h);_e.set(rx,ry,rz,'YXZ');_q2.setFromEuler(_e);_q1.premultiply(_q2);_q1.premultiply(ref.holder.getWorldQuaternion(_q3));
+b.parent.getWorldQuaternion(_q2).invert();b.quaternion.copy(_q2.multiply(_q1));b.updateWorldMatrix(false,true);}
+function poseHero(){const ref=pl.ref;if(!ref||!ref.bones||pl.roll>0)return;if(ref.acts.atk1&&pl.spin<=0)return;const B=ref.bones;let ur=null,lr=null,ch=0,swd=0;
+const w=S.cls==='warrior';
+if(pl.spin>0){ur=[0,0,-1.45];lr=[0,0,0];}
+else if(pl.atkT>0&&pl.P){const k=clamp(pl.atkAge/pl.atkLen,0,1),f=pl.atkFire/pl.atkLen,wind=easeIO(clamp(k/f,0,1)),strike=easeIO(clamp((k-f)/(1-f),0,1));
+if(pl.atkKind==='skill'){const t=k<f?wind:1-strike;ur=[-1.2-0.2*t,0,0];lr=[-0.3,0,0];}
+else if(w){const c=pl.combo;let A,Bp;
+if(c===1){A=[-2.5,-0.7,0];Bp=[-0.6,0.6,0];}
+else if(c===2){A=[-1.5,0.9,0];Bp=[-1.5,-0.9,0];}
+else{A=[-3.1,0,0];Bp=[-0.5,0,0];}
+const t=k<f?wind:1,u=k<f?0:strike;
+const p=A.map((v,i)=>v+(Bp[i]-v)*(k<f?0:Math.pow(u,0.5)));
+const wv=k<f?A.map((v,i)=>[0,0,0][i]*0):p;ur=k<f?[A[0]*wind+(-0.2)*(1-wind),A[1]*wind,0]:p;lr=[-0.5*Math.sin(k*PI),0,0];ch=0;}
+else{const t=k<f?wind:1-strike*0.7;ur=[-1.0-0.5*t,0,0];lr=[-0.6*t,0,0];}}
+else if(!w&&pl.comboT>0){}
+if(!ur)return;
+boneAdd(ref,B.ur,ur[0],ur[1],ur[2]);if(lr)boneAdd(ref,B.lr,lr[0],lr[1],lr[2]);}
 async function setClass(cls){S.cls=cls;const ref=await makeHero(cls);if(pl.ref){if(pl.ref.root.parent)pl.ref.root.parent.remove(pl.ref.root);const i=S.mixers.indexOf(pl.ref.mx);if(i>=0)S.mixers.splice(i,1);}pl.ref=ref;if(S.world)S.world.add(ref.root);
 pl.mhp=cls==='warrior'?120:90;pl.hp=pl.mhp;$('clsName').textContent=cls==='warrior'?'전사':'마법사';}
 function aimAssist(){let best=null,bd=7;for(const e of S.ents){if(e.state==='dead')continue;const d=arc(pl.n,e.n)-e.spec.rad;if(d<bd){const dir=dirTo(pl.n,e.n);if(dir&&dir.dot(pl.f)>0.2){best=dir;bd=d;}}}return best;}
@@ -98,7 +127,7 @@ let P;if(kind==='atk'){pl.combo=pl.comboT>0?pl.combo%3+1:1;P=CB[S.cls][pl.combo]
 else{pl.combo=0;P=w?{t:.77,fire:.38,ts:1.9,twist:0,lean:.2}:{t:.95,fire:.6,ts:2.6,twist:0,lean:.2};pl.skCd=w?4:5;}
 pl.comboT=0;pl.atkKind=kind;pl.atkDone=false;pl.P=P;pl.atkLen=P.t;pl.atkT=P.t;pl.atkFire=P.fire;pl.atkAge=0;
 const d=S.lock&&S.lock.state!=='dead'?dirTo(pl.n,S.lock.n):aimAssist();pl.atkDir=d?d.clone():(moveVec()||null);
-play(pl.ref,'atk',0.06,true,P.ts);sfx(w?(pl.combo===3?'boom':'swing'):'cast');}
+{const R=pl.ref,k=kind==='skill'?'skill':'atk'+pl.combo;if(R.acts[k]){const cl=R.acts[k].getClip().duration;play(R,k,0.06,true,cl/P.t*(P.rt||1));R.rt=1;}else play(R,'atk',0.06,true,P.ts);}sfx(w?(pl.combo===3?'boom':'swing'):'cast');}
 function makeSpinFx(){endSpin(true);const g=new THREE.Group(),sp=new THREE.Group(),gr=new THREE.Group();
 [0,PI].forEach((a,i)=>{const m=new THREE.Mesh(new THREE.RingGeometry(1.9,2.7,40,1,a,2.4),bm(i?0xffffff:0xffe9a0,0.85,true));m.rotation.x=-PI/2;m.position.y=0.95;sp.add(m);});
 const disc=new THREE.Mesh(new THREE.CircleGeometry(3.3,48),bm(0xffd45a,0.16));disc.rotation.x=-PI/2;disc.position.y=0.12;const rg=new THREE.Mesh(new THREE.RingGeometry(3.2,3.35,48),bm(0xffe9a0,0.8));rg.rotation.x=-PI/2;rg.position.y=0.13;gr.add(disc,rg);
@@ -164,7 +193,7 @@ else if(mv)turnToward(pl.f,mv,pl.n,14*dt);
 orient(ref.root,pl.n,pl.f,pl.jy);
 if(pl.spinFx){orient(pl.spinFx,pl.n,pl.f,pl.jy);pl.spinFx.userData.sp.rotation.y+=16*dt;}
 if(pl.spin>0&&pl.roll<=0){ref.tumble.rotation.set(0.12,(S.t*18)%(2*PI),0);ref.tumble.position.y=0.9;}
-else if(pl.atkT>0&&pl.atkKind==='atk'&&pl.P&&pl.roll<=0){const pr=clamp(pl.atkAge/pl.atkLen,0,1),sn=Math.sin(pr*PI);ref.tumble.rotation.set(pl.P.lean*sn,pl.P.twist*sn,0);ref.tumble.position.y=0.9+(pl.P.hop?sn*0.45:0);}
+else if(pl.atkT>0&&pl.atkKind==='atk'&&pl.P&&pl.roll<=0){const pr=clamp(pl.atkAge/pl.atkLen,0,1),sn=Math.sin(pr*PI);const rt=ref.acts.atk1?0.0:1;ref.tumble.rotation.set(pl.P.lean*sn*rt,pl.P.twist*sn*rt,0);ref.tumble.position.y=0.9+(pl.P.hop?sn*(rt?0.45:0.2):0);}
 else if(pl.roll<=0&&pl.jy>0){const T=2*10.5/28,k=clamp(pl.jt/T,0,1),up=pl.vy>0;
 let rx;if(pl.jflip){rx=easeIO(clamp((k-0.08)/0.84,0,1))*PI*2;}else{rx=up?-0.12:0.22*Math.min(1,(1-k)*3);}
 ref.tumble.rotation.set(rx,0,0);const tuck=pl.jflip?Math.sin(clamp((k-0.08)/0.84,0,1)*PI)*0.18:0;
@@ -175,9 +204,9 @@ if(!(pl.jy>0||pl.jland>0))ref.root.scale.set(1,1,1);
 /* 애니메이션 */
 if(pl.atkT<=0&&pl.roll<=0&&ref.cur==='atk'&&(!ref.acts.atk||!ref.acts.atk.isRunning()||pl.atkT<=0)){}
 if(pl.roll>0)play(ref,'run',0.05,false,1.6);
-else if(pl.atkT>0){}
+else if(pl.atkT>0){if(!(ref.cur==='skill'||/^atk\d/.test(ref.cur)))play(ref,mv?'run':'idle',0.1,false,1);}
 else if(pl.spin>0)play(ref,'run',0.1,false,1.4);
-else if(pl.jy>0)play(ref,'run',0.1,false,pl.jflip?0.3:0.5);
+else if(pl.jy>0)play(ref,ref.acts.jump?'jump':'run',0.1,false,1);
 else if(mv)play(ref,'run',0.15,false,1);
 else play(ref,'idle',0.2,false,1);
 if(pl.atkT<=0&&ref.cur==='atk')ref.cur='';
@@ -191,15 +220,17 @@ const c=S.cN;S.portals.push(makePortal({id:'toVillage',n:c.clone(),to:'village',
 
 /* ---------- 몬스터 ---------- */
 const EN={
-cactus:{a:'cactus',name:'선인장',h:1.5,hp:60,spd:3.2,aggro:7,kind:'melee',range:2.0,wind:0.75,cd:1.6,dmg:12,rad:0.7,r2:2.4,fly:0},
-alien:{a:'alien',name:'외계인',h:1.5,hp:50,spd:3.6,aggro:7.5,kind:'lunge',range:6,wind:0.7,cd:2.0,dmg:14,rad:0.7,dash:6,dashT:0.35,fly:0},
-mushroom:{a:'mushroom',name:'버섯',h:1.4,hp:80,spd:1.9,aggro:7,kind:'ranged',range:9,wind:0.9,cd:2.6,dmg:10,rad:0.8,proj:7,fly:0},
-bee:{a:'bee',name:'벌',h:1.2,hp:35,spd:5,aggro:8,kind:'lunge',range:7,wind:0.6,cd:1.8,dmg:10,rad:0.6,dash:7,dashT:0.3,fly:1.5},
-bat:{a:'bat',name:'박쥐',h:1.2,hp:30,spd:5.5,aggro:8,kind:'lunge',range:7,wind:0.55,cd:1.7,dmg:8,rad:0.6,dash:7,dashT:0.28,fly:1.9},
+cactus:{a:'cactus',name:'선인장',h:2.0,hp:60,spd:3.2,aggro:7,kind:'melee',range:2.0,wind:0.75,cd:1.6,dmg:12,rad:0.7,r2:2.4,fly:0},
+alien:{a:'alien',name:'외계인',h:1.9,hp:50,spd:3.6,aggro:7.5,kind:'lunge',range:6,wind:0.7,cd:2.0,dmg:14,rad:0.7,dash:6,dashT:0.35,fly:0},
+mushroom:{a:'mushroom',name:'버섯',h:2.1,hp:80,spd:1.9,aggro:7,kind:'ranged',range:9,wind:0.9,cd:2.6,dmg:10,rad:0.8,proj:7,fly:0},
+bee:{a:'bee',name:'벌',h:1.4,hp:35,spd:5,aggro:8,kind:'lunge',range:7,wind:0.6,cd:1.8,dmg:10,rad:0.6,dash:7,dashT:0.3,fly:1.5},
+bat:{a:'bat',name:'박쥐',h:1.5,hp:30,spd:5.5,aggro:8,kind:'lunge',range:7,wind:0.55,cd:1.7,dmg:8,rad:0.6,dash:7,dashT:0.28,fly:1.9},
+orc:{a:'orc',name:'오크',h:2.2,hp:95,spd:2.9,aggro:7,kind:'melee',range:2.2,wind:0.8,cd:1.7,dmg:15,rad:0.8,r2:2.6,fly:0},
+dino:{a:'dino',name:'공룡',h:1.9,hp:70,spd:3.5,aggro:7.5,kind:'lunge',range:6,wind:0.7,cd:2.0,dmg:14,rad:0.7,dash:6,dashT:0.35,fly:0},
 dragon:{a:'dragon',name:'하늘의 폭군 드래곤',h:4.6,hp:760,spd:3.4,aggro:99,kind:'boss',range:99,rad:2.3,fly:0.8}};
 async function spawnEnt(type,n,f){const spec=EN[type],a=await load(spec.a);if(!a)return null;
 const holder=inst(a,spec.h,{ownMat:true}),root=new THREE.Group();root.add(holder);S.world.add(root);
-const m=mkActs(holder,a.anims,MON);const e={type,spec,root,holder,mx:m.mx,acts:m.acts,cur:'',n:n.clone(),f:f.clone(),hp:spec.hp,mhp:spec.hp,state:'idle',t:0,cd:1+Math.random(),stun:0,flash:0,lift:spec.fly,decal:null,boss:type==='dragon',bob:Math.random()*6,home:n.clone()};
+const m=mkActs(holder,a.anims,a.clips||MON);const e={type,spec,root,holder,mx:m.mx,acts:m.acts,cur:'',n:n.clone(),f:f.clone(),hp:spec.hp,mhp:spec.hp,state:'idle',t:0,cd:1+Math.random(),stun:0,flash:0,lift:spec.fly,decal:null,boss:type==='dragon',bob:Math.random()*6,home:n.clone()};
 if(a.anims.length&&!e.acts.idle&&e.acts.fly)e.acts.idle=e.acts.fly;play(e,spec.fly?'fly':'idle',0);S.ents.push(e);orient(root,e.n,e.f,e.lift);return e;}
 function faceTo(e,t,rate,dt){const d=dirTo(e.n,t);if(d)turnToward(e.f,d,e.n,rate*dt);}
 function updateEnt(e,dt){const sp=e.spec;e.bob+=dt*3;
@@ -292,7 +323,7 @@ const put=(a,h,n,spin)=>{const o=inst(a,h);const f=any(n).applyAxisAngle(n,spin|
 const A=k=>W.cache[k]?W.cache[k].__a:null;
 const cN=toN(Z.center[0],Z.center[1]);S.cN=cN;
 const get=async k=>await load(k);
-for(const [k,h,th,ph,sp] of Z.items){if(k==='tree1'&&th>0.9)continue;const a=await get(k);if(!a)continue;const n=toN(th,ph);put(a,h,n,sp);const r=SOLID[k];if(r)S.solids.push({n,r});}
+for(const [k,h,th,ph,sp] of Z.items){if(k==='tree1'&&th>0.9)continue;const a=await get(k);if(!a)continue;const n=toN(th,ph);put(a,h,n,sp);const r=SOLID[k];if(r){S.solids.push({n,r});if(SOLID_X[k]){const f=any(n).applyAxisAngle(n,sp||0);for(const [d] of SOLID_X[k])S.solids.push({n:n.clone().addScaledVector(f,d/R).normalize(),r:r-0.3});}}}
 const rd=rnd(name.length*97+11);
 for(const [k,h,cnt] of Z.scatter){const a=await get(k);if(!a)continue;for(let i=0;i<cnt*2;i++){const n=pointAt(cN,Math.sqrt(rd())*Z.L*0.95,rd()*PI*2);if(onPath(name,n))continue;put(a,h*(0.8+rd()*0.5),n,rd()*6);}}
 /* 경계 장식 */
@@ -366,7 +397,7 @@ const clock=new THREE.Clock();let step=0;
 function frame(){const dt=Math.min(clock.getDelta(),0.05);step++;
 if(S.world&&S.sun){S.t+=dt;
 if(S.running||true){updatePlayer(dt);for(let i=S.ents.length-1;i>=0;i--){const e=S.ents[i];updateEnt(e,dt);if(e.gone)S.ents.splice(i,1);}projTick(dt);waveTick(dt);}
-S.mixers.forEach(m=>m.update(dt));fxTick();decalTick();
+S.mixers.forEach(m=>m.update(dt));poseHero();fxTick();decalTick();
 if(S.running){checkPortals();hud();}else{pl.cf.applyAxisAngle(pl.n,-dt*0.25);}
 updateCamera(dt);renderer.render(scene,cam);}
 requestAnimationFrame(frame);}

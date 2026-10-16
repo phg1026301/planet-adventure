@@ -33,15 +33,17 @@ const WF={9728:THREE.NearestFilter,9729:THREE.LinearFilter,9984:THREE.NearestMip
 gltfL.register(parser=>({name:'bitmap_tex',loadTexture(i){const json=parser.json,td=json.textures[i],src=json.images[td.source];if(src.bufferView===undefined||typeof createImageBitmap==='undefined')return null;
 return parser.getDependency('bufferView',src.bufferView).then(buf=>createImageBitmap(new Blob([buf],{type:src.mimeType}),{premultiplyAlpha:'none'})).then(bmp=>{const tx=new THREE.CanvasTexture(bmp);tx.flipY=false;const s=(json.samplers||{})[td.sampler]||{};
 tx.magFilter=WF[s.magFilter]||THREE.LinearFilter;tx.minFilter=WF[s.minFilter]||THREE.LinearMipmapLinearFilter;tx.wrapS=WW[s.wrapS]||THREE.RepeatWrapping;tx.wrapT=WW[s.wrapT]||THREE.RepeatWrapping;tx.encoding=THREE.sRGBEncoding;parser.associations.set(tx,{type:'textures',index:i});return tx;});}}));
-const cache={},failed=[];
+const cache={},failed=[],mcache={};
+function modScene(k){if(!mcache[k])mcache[k]=new Promise(res=>gltfL.load('assets/v2/'+k+'.glb',g=>{g.scene.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true;}});res(g.scene);},undefined,()=>res(null)));return mcache[k].then(s=>s?s.clone():null);}
 function fixMat(m){if(m.isMeshPhongMaterial){m.shininess=4;m.specular=new THREE.Color(0x111111);}}
 function load(key,onDone){if(cache[key])return cache[key];const d=A[key];
 cache[key]=new Promise(res=>{
 const done=(obj,anims)=>{obj.updateMatrixWorld(true);let box=new THREE.Box3().setFromObject(obj);
 if(d.bones){box=new THREE.Box3();const v=V3(0,0,0);obj.traverse(c=>{if(c.isBone)box.expandByPoint(c.getWorldPosition(v));});box.min.x=box.min.z=-0.3;box.max.x=box.max.z=0.3;box.max.y*=1.03;box.min.y=0;}
-res({key,obj,anims:anims||[],box,skin:d.skin});};
+res({key,obj,anims:anims||[],box,skin:d.skin,clips:d.clips});};
 const fail=()=>{failed.push(key);res(null);};
-if(d.fbx){fbxL.load(d.url,o=>{let tex=null;if(d.tex){tex=texL.load(d.tex);tex.encoding=THREE.sRGBEncoding;}
+if(d.build){buildHouse(modScene,d.build).then(g=>done(g,[]),fail);}
+else if(d.fbx){fbxL.load(d.url,o=>{let tex=null;if(d.tex){tex=texL.load(d.tex);tex.encoding=THREE.sRGBEncoding;}
 o.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true;const ms=Array.isArray(c.material)?c.material:[c.material];ms.forEach(m=>{fixMat(m);if(tex){m.map=tex;m.color=new THREE.Color(0xffffff);m.needsUpdate=true;}});}});
 done(o,o.animations);},undefined,fail);}
 else gltfL.load(d.url,g=>{g.scene.traverse(c=>{if(c.isMesh){c.castShadow=true;c.receiveShadow=true;}});done(g.scene,g.animations);},undefined,fail);
@@ -93,12 +95,14 @@ function floorTex(z){if(!fcache[z]){const t=new THREE.CanvasTexture(paintFloor(z
 
 /* ---------- 구역 데이터 ---------- */
 const PI=Math.PI;
-const SOLID={inn:3.4,cottage:2.5,well:1.1,lamp:0.4,barrel:0.5,crates:0.8,wagon:1.4,btree1:0.8,btree2:0.8,btree4:0.8,brocks:0.8,tree1:0.8,tree2:0.8,tree3:0.8,pine:0.8,birch:0.7,autumn:0.8,willow:0.9,rock:0.8,rockMoss:0.9,stump:0.5,log:0.6,column:0.9,columnD:0.9,statue:0.9,bush:0.0};
+const SOLID={inn:3.2,houseS:2.2,houseM:2.9,houseB:2.9,cottage:2.9,well:1.1,lamp:0.4,barrel:0.5,barrelA:0.5,crates:0.8,wagon:1.4,stall:1.2,cart:1.6,anvil:0.6,dummy:0.5,weaponstand:0.7,chest:0.6,cauldron:0.6,bench:0.9,btree1:0.8,btree2:0.8,btree4:0.8,brocks:0.8,tree1:0.8,tree2:0.8,tree3:0.8,birch:0.7,pine:0.8,pine2:0.8,pine3:0.8,autumn:0.8,willow:0.9,rock:0.8,rock2:0.8,rockMoss:0.9,stump:0.5,log:0.6,column:0.9,columnD:0.9,statue:0.9,dead1:0.6,dead2:0.6,bush:0.0};
+const SOLID_X={inn:[[-3.6],[3.6]]};
 const ZONES={
 village:{n:'마을',sky:0xbfe3f2,hemi:[0xffffff,0x7a9a6a,0.85],sun:1.05,center:[0.2,PI],L:19,safe:true,
- items:[['inn',6.6,0.56,PI,0],['cottage',4.4,0.33,PI-0.62,0.62],['cottage',4.4,0.36,PI+0.66,-0.66+PI],['cottage',4.2,0.62,PI+1.15,-1.15],
- ['well',2.6,0.2,PI+0.05,0.3],['lamp',2.6,0.13,PI-0.2,0],['lamp',2.6,0.13,PI+0.24,0],['lamp',2.6,0.38,PI-0.12,0],
- ['fence',1.1,0.24,PI-0.95,1.2],['fence',1.1,0.27,PI-1.1,1.0],['barrel',0.8,0.42,PI+0.33,0],['barrel',0.8,0.44,PI+0.38,0.5],['crates',1.1,0.45,PI-0.3,0.3],['wagon',1.7,0.3,PI+0.36,-1.0],
+ items:[['inn',7.6,0.58,PI,0],['houseM',6.2,0.33,PI-0.66,0],['houseB',6.2,0.36,PI+0.7,0],['houseS',5.4,0.64,PI+1.2,0],
+ ['well',2.6,0.2,PI+0.05,0.3],['pbanner',2.6,0.4,PI-0.2,0],['pbanner2',2.6,0.4,PI+0.2,0],
+ ['stall',2.6,0.27,PI-1.2,0.5],['cart',2.5,0.3,PI+1.05,2.4],['anvil',1.0,0.36,PI-1.0,0],['dummy',1.9,0.24,PI-0.6,0.3],['weaponstand',1.1,0.23,PI-0.4,0],
+ ['fence',1.1,0.24,PI-1.3,1.2],['fence',1.1,0.27,PI-1.42,1.0],['barrel',0.8,0.42,PI+0.35,0],['barrelA',0.8,0.44,PI+0.4,0.5],['crates',1.1,0.45,PI-0.3,0.3],['wagon',1.7,0.3,PI+0.4,-1.0],['bench',0.7,0.19,PI+0.5,0.3],
  ['btree1',5,0.7,PI-0.5,0],['btree2',4.6,0.75,PI+0.5,1],['btree4',5.4,0.5,PI-1.25,2],['btree1',5,0.55,PI+1.45,0.5],['btree2',4.4,0.9,PI+0.05,2],
  ['bbush',1.1,0.18,PI-0.45,0],['bbush',1.0,0.23,PI+0.5,1],['bbush',1.2,0.4,PI-0.75,2],['brocks',0.9,0.3,PI-0.85,0]],
  scatter:[['flowers',0.55,24,0.06,0.5],['grass',0.45,30,0.05,0.7]],ring:['brocks','bbush','btree4'],
@@ -108,8 +112,8 @@ village:{n:'마을',sky:0xbfe3f2,hemi:[0xffffff,0x7a9a6a,0.85],sun:1.05,center:[
 field:{n:'필드',sky:0xffe0c0,hemi:[0xfff2dd,0x8a9a5a,0.85],sun:1.1,center:[0.45,PI],L:22,
  items:[['tree1',4.6,0.42,PI-0.75,0],['tree2',5.2,0.5,PI+0.62,1],['autumn',4.6,0.36,PI+1.1,2],['pine',5.4,0.6,PI-0.25,0],['birch',5.2,0.55,PI+0.2,1],['willow',4.8,0.72,PI-1.2,2],['tree3',5,0.8,PI+0.9,0],['autumn',4.4,0.68,PI-0.55,0.5],['pine',5,0.85,PI+0.45,1.5],
  ['bush',0.7,0.2,PI-0.95,0],['berry',0.7,0.34,PI+0.95,1],['bush',0.8,0.42,PI-0.45,2],['rockMoss',1.0,0.28,PI-0.35,0],['rock',0.8,0.2,PI+0.75,1],['stump',0.7,0.31,PI+0.28,0],['log',0.7,0.42,PI-0.15,1.2],['plant',0.5,0.1,PI+0.35,0]],
- scatter:[['flowers',0.55,40,0.05,0.7],['grass',0.45,45,0.04,0.8]],ring:['rock','bush','pine','tree1'],
- spawns:[['cactus',1.226,2.962],['alien',1.007,-2.494],['mushroom',0.600,2.366],['cactus',0.645,-2.288],['alien',1.142,2.608],['mushroom',0.758,2.942],['bee',1.214,-2.900],['bat',0.980,2.261]],
+ scatter:[['flowers',0.55,40,0.05,0.7],['grass',0.45,45,0.04,0.8],['fern',0.7,16,0.05,0.5],['mush',0.4,12,0.05,0.5],['flowers2',0.6,14,0.05,0.5],['clover',0.3,16,0.05,0.5]],ring:['rock','bush','pine','tree1','pine2','tree2'],
+ spawns:[['cactus',1.226,2.962],['alien',1.007,-2.494],['mushroom',0.600,2.366],['orc',0.645,-2.288],['dino',1.142,2.608],['mushroom',0.758,2.942],['bee',1.214,-2.900],['bat',0.980,2.261]],
  portals:[{id:'toVillage',th:0.3,ph:0,to:'village',label:'마을로 돌아가는 문'},{id:'toBoss',th:0.97,ph:PI,to:'boss',label:'보스방 문',needKills:3}]},
 boss:{n:'보스방',sky:0x2b2650,hemi:[0x9a8aff,0x2a2040,0.8],sun:0.6,night:1,center:[0.31,PI],L:14.2,
  items:[],scatter:[['grass',0.4,10,0.15,0.6]],ring:[],portals:[]}};
@@ -125,5 +129,5 @@ function onPath(zone,n){const [x,z]=floorXY(n);
 if(zone==='village'){const px=1.7*Math.sin(z*0.2);return (z<11&&z>-19&&Math.abs(x-px)<2.2)||Math.hypot(x,z+5.2)<5.9;}
 if(zone==='field'){const px=2.6*Math.sin(z*0.22+1);return z<14&&z>-40&&Math.abs(x-px)<1.9;}
 return false;}
-window.W={floorXY,onPath,R,C,V3,clamp,renderer,scene,cam,stage,orient,toN,arc,dirTo,stepOn,moveAlong,turnToward,rotAbout,pointAt,load,inst,findClip,failed,planetGeo,floorTex,ZONES,SOLID,rnd,PI,cache};
+window.W={SOLID_X,floorXY,onPath,R,C,V3,clamp,renderer,scene,cam,stage,orient,toN,arc,dirTo,stepOn,moveAlong,turnToward,rotAbout,pointAt,load,inst,findClip,failed,planetGeo,floorTex,ZONES,SOLID,rnd,PI,cache};
 })();

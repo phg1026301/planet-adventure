@@ -1,28 +1,48 @@
 /* 에셋 목록. 모델을 바꾸고 싶으면 url만 새 파일 경로로 바꾸면 돼.
-   h: 게임 안에서의 키(미터), skin: 뼈대 애니메이션 모델, fbx: FBX 파일, tex: 따로 입히는 텍스처 */
+   skin: 뼈대 애니메이션 모델, clips: 모델 안의 애니메이션 이름, build: 조각을 조립해 만드는 건물 */
+const MB={idle:'Idle',walk:'Walk',atk:'Punch',hit:'HitReact',die:'Death'},MF={idle:'Flying_Idle',walk:'Fast_Flying',fly:'Flying_Idle',atk:'Headbutt',hit:'HitReact',die:'Death'};
+const nat=(f)=>({url:'assets/v2/nature/'+f+'.glb'}),prp=(f)=>({url:'assets/v2/props/'+f+'.glb'});
 window.ASSETS={
-  /* 플레이어 */
-  warrior:{url:'assets/chars/paladin.glb',skin:1,bones:1},
-  mage:{url:'assets/chars/sorceror.glb',skin:1,bones:1},
-  sword:{url:'assets/weapons/Sword_Golden.fbx',fbx:1},
-  shield:{url:'assets/weapons/Shield_Round.fbx',fbx:1},
+  /* 플레이어 (KayKit Adventurers, CC0) */
+  warrior:{url:'assets/v2/chars/Knight.glb',skin:1},
+  mage:{url:'assets/v2/chars/Mage.glb',skin:1},
+  animGen:{url:'assets/v2/chars/Rig_Medium_General.glb',skin:1},
+  animMove:{url:'assets/v2/chars/Rig_Medium_MovementBasic.glb',skin:1},
+  sword:{url:'assets/v2/weapons/sword_1handed.glb'},
+  shield:{url:'assets/v2/weapons/shield_badge_color.glb'},
+  staff:{url:'assets/v2/weapons/staff.glb'},
+  ualSword:{url:'assets/v2/chars/UALsword.glb',skin:1},
   robot:{url:'assets/chars/robot.glb',skin:1},
-  /* 몬스터와 보스 */
-  mushroom:{url:'assets/monsters/Mushroom.fbx',fbx:1,tex:'assets/monsters/Mushroom_Texture.png',skin:1},
-  alien:{url:'assets/monsters/Alien.fbx',fbx:1,tex:'assets/monsters/Alien_Texture.png',skin:1},
-  cactus:{url:'assets/monsters/Cactus.fbx',fbx:1,tex:'assets/monsters/Cactus_Texture.png',skin:1},
-  bee:{url:'assets/monsters/Bee.fbx',fbx:1,tex:'assets/monsters/Bee_Texture.png',skin:1},
-  bat:{url:'assets/monsters/Bat.fbx',fbx:1,tex:'assets/monsters/Bat_Texture.png',skin:1},
-  dragon:{url:'assets/monsters/YellowDragon.fbx',fbx:1,tex:'assets/monsters/YellowDragon_Texture.png',skin:1},
-  /* 자연 */
-  tree1:{url:'assets/nature/CommonTree_1.fbx',fbx:1},tree2:{url:'assets/nature/CommonTree_2.fbx',fbx:1},tree3:{url:'assets/nature/CommonTree_3.fbx',fbx:1},
-  pine:{url:'assets/nature/PineTree_1.fbx',fbx:1},birch:{url:'assets/nature/BirchTree_1.fbx',fbx:1},autumn:{url:'assets/nature/CommonTree_Autumn_1.fbx',fbx:1},willow:{url:'assets/nature/Willow_1.fbx',fbx:1},
-  bush:{url:'assets/nature/Bush_1.fbx',fbx:1},berry:{url:'assets/nature/BushBerries_1.fbx',fbx:1},flowers:{url:'assets/nature/Flowers.fbx',fbx:1},grass:{url:'assets/nature/Grass.fbx',fbx:1},
-  plant:{url:'assets/nature/Plant_1.fbx',fbx:1},rock:{url:'assets/nature/Rock_1.fbx',fbx:1},rockMoss:{url:'assets/nature/Rock_Moss_1.fbx',fbx:1},stump:{url:'assets/nature/TreeStump.fbx',fbx:1},log:{url:'assets/nature/WoodLog.fbx',fbx:1},
-  /* 보스방 (Kenney) */
+  /* 몬스터와 보스 (Quaternius Ultimate Monsters, CC0) */
+  cactus:{url:'assets/v2/monsters/Cactoro.glb',skin:1,clips:MB},
+  alien:{url:'assets/v2/monsters/Alien.glb',skin:1,clips:MB},
+  mushroom:{url:'assets/v2/monsters/MushroomKing.glb',skin:1,clips:MB},
+  orc:{url:'assets/v2/monsters/Orc.glb',skin:1,clips:MB},
+  dino:{url:'assets/v2/monsters/Dino.glb',skin:1,clips:MB},
+  demon:{url:'assets/v2/monsters/Demon.glb',skin:1,clips:MB},
+  bee:{url:'assets/v2/monsters/Armabee.glb',skin:1,clips:MF},
+  bat:{url:'assets/v2/monsters/Hywirl.glb',skin:1,clips:MF},
+  ghost:{url:'assets/v2/monsters/Ghost.glb',skin:1,clips:MF},
+  dragon:{url:'assets/v2/monsters/Dragon_Evolved.glb',skin:1,clips:MF},
+  /* 자연 (Quaternius Stylized Nature MegaKit, CC0) */
+  tree1:nat('CommonTree_1'),tree2:nat('CommonTree_2'),tree3:nat('CommonTree_4'),birch:nat('CommonTree_3'),tree5:nat('CommonTree_5'),
+  pine:nat('Pine_1'),pine2:nat('Pine_2'),pine3:nat('Pine_3'),pine4:nat('Pine_4'),
+  autumn:nat('TwistedTree_1'),willow:nat('TwistedTree_3'),twisted2:nat('TwistedTree_2'),
+  dead1:nat('DeadTree_1'),dead2:nat('DeadTree_2'),dead3:nat('DeadTree_3'),
+  bush:nat('Bush_Common_Flowers'),berry:nat('Bush_Common'),fern:nat('Fern_1'),plant:nat('Plant_1_Big'),plant2:nat('Plant_7'),
+  flowers:nat('Flower_3_Group'),flowers2:nat('Flower_4_Group'),clover:nat('Clover_1'),grass:nat('Grass_Common_Tall'),grassS:nat('Grass_Common_Short'),wisp:nat('Grass_Wispy_Tall'),
+  rock:nat('Rock_Medium_1'),rock2:nat('Rock_Medium_2'),rockMoss:nat('Rock_Medium_3'),pebble:nat('Pebble_Round_1'),pebble2:nat('Pebble_Round_3'),
+  mush:nat('Mushroom_Common'),mush2:nat('Mushroom_Laetiporus'),stump:nat('Mushroom_Laetiporus'),log:nat('Rock_Medium_2'),
+  pathR:nat('RockPath_Round_Wide'),pathS:nat('RockPath_Square_Wide'),
+  /* 보스방 (Kenney, CC0) */
   column:{url:'assets/kenney/column.glb'},columnD:{url:'assets/kenney/column-damaged.glb'},banner:{url:'assets/kenney/banner.glb'},statue:{url:'assets/kenney/statue.glb'},bricks:{url:'assets/kenney/bricks.glb'},
-  /* 마을 (Babylon.js Village Pack) */
-  cottage:{url:'assets/village/cottage.glb'},inn:{url:'assets/village/inn.glb'},well:{url:'assets/village/waterwell.glb'},lamp:{url:'assets/village/lightPost1.glb'},fence:{url:'assets/village/fence.glb'},
-  barrel:{url:'assets/village/barrel.glb'},crates:{url:'assets/village/crateStack.glb'},wagon:{url:'assets/village/wagon.glb'},
-  btree1:{url:'assets/village/tree1.glb'},btree2:{url:'assets/village/tree2.glb'},btree4:{url:'assets/village/tree4.glb'},bbush:{url:'assets/village/bush1.glb'},brocks:{url:'assets/village/rocks2.glb'}
+  /* 마을: 집은 Quaternius Medieval Village MegaKit 조각을 조립한다 */
+  houseS:{build:{nx:2,nz:2}},houseM:{build:{nx:3,nz:3}},houseB:{build:{nx:3,nz:3,brick:1}},inn:{build:{nx:4,nz:6}},
+  cottage:{build:{nx:3,nz:3}},
+  well:{url:'assets/village/waterwell.glb'},lamp:prp('Torch_Metal'),fence:{url:'assets/v2/village/Prop_WoodenFence_Single.glb'},
+  barrel:prp('Barrel'),crates:prp('Crate_Wooden'),wagon:{url:'assets/v2/village/Prop_Wagon.glb'},
+  stall:prp('Stall_Empty'),cart:prp('Stall_Cart_Empty'),bench:prp('Bench'),anvil:prp('Anvil_Log'),chest:prp('Chest_Wood'),cauldron:prp('Cauldron'),dummy:prp('Dummy'),weaponstand:prp('WeaponStand'),
+  pbanner:prp('Banner_1'),pbanner2:prp('Banner_2'),barrelA:prp('Barrel_Apples'),crateM:prp('Crate_Metal'),bucket:prp('Bucket_Wooden_1'),pot:prp('Pot_1'),
+  chandelier:prp('Chandelier'),torch:prp('Torch_Metal'),
+  btree1:nat('CommonTree_1'),btree2:nat('CommonTree_2'),btree4:nat('CommonTree_5'),bbush:nat('Bush_Common_Flowers'),brocks:nat('Rock_Medium_2')
 };
