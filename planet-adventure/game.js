@@ -403,7 +403,7 @@ st.addEventListener('pointerup',up);st.addEventListener('pointercancel',up);
 {const b=$('bAtk');b.onpointerdown=e=>{e.preventDefault();S.btnAtk=true;startAtk('atk');};['onpointerup','onpointerleave','onpointercancel'].forEach(k=>b[k]=()=>{S.btnAtk=false;});}$('bSkill').onclick=()=>startAtk('skill');$('bRoll').onclick=()=>tryRoll();$('bJump').onclick=()=>tryJump();$('bLock').onclick=()=>toggleLock();
 {const TIPS=()=>({bAtk:'기본공격 (Z / 마우스 클릭)\n꾹 누르면 연속 공격해요. 1·2·3타로 이어지고 3타가 가장 강해요. 스태미나 소모 없음.',
 bSkill:S.cls==='warrior'?'윈드밀 (X)\n3초 동안 회전하며 주변 적을 0.25초마다 베어요. 도는 중에도 이동할 수 있어요.\n사용한 순간부터 5초 동안 무적이에요.\n스태미나 30 · 재사용 7초':'메테오 (X)\n조준한 곳에 운석을 떨어뜨려 넓은 범위에 큰 피해를 줘요.\n스태미나 30 · 재사용 5초',
-bS1:'와일드 쇼크 (A)\n앞으로 빠르게 돌진해 베고, 끝에서 땅을 울리는 충격파가 터져요.\n돌진 중 무적이에요. 스태미나 25 · 재사용 6초',bS2:'라이징 슬래시 (S)\n앞으로 한 걸음 파고들어 하늘로 베어 올려요. 맞은 적이 공중으로 떠올라요.\n스태미나 25 · 재사용 5초',bS3:'벚꽃 검무 (D)\n벚꽃잎이 소용돌이치는 가운데 회전하며 5번 베어요. 마지막 일격이 가장 강해요.\n스태미나 30 · 재사용 9초',bS4:'소드 체이서 (Q)\n허공에 검 6자루를 소환해 가까운 적을 쫓아가 꽂아요. 적이 없으면 앞으로 날아가요.\n스태미나 28 · 재사용 8초',bS5:'소드 레인 (W)\n조준한 적(없으면 앞쪽) 위로 검 16자루가 비처럼 쏟아져요. 마지막에 충격파가 터져요.\n스태미나 32 · 재사용 10초',bJump:'점프 (Space)\n보스의 파동처럼 낮게 깔리는 공격을 넘어가요.',bRoll:'구르기 (C)\n구르는 동안 무적이에요. 스태미나 22.',bLock:'락온 (Tab / R)\n가까운 적을 조준해요. 다시 누르면 해제돼요.'});
+bS1:'와일드 쇼크 (A)\n앞으로 빠르게 돌진해 베고, 끝에서 땅을 울리는 충격파가 터져요.\n돌진 중 무적이에요. 스태미나 25 · 재사용 6초',bS2:'라이징 슬래시 (S)\n앞으로 한 걸음 파고들어 하늘로 베어 올려요. 맞은 적이 공중으로 떠올라요.\n스태미나 25 · 재사용 5초',bS3:'벚꽃 검무 (D)\n벚꽃잎이 소용돌이치는 가운데 회전하며 5번 베어요. 마지막 일격이 가장 강해요.\n스태미나 30 · 재사용 9초',bS4:'소드 체이서 (Q)\n허공에 검 30자루를 소환해 차례로 쏘아요. 갈수록 점점 빨라져요! 적이 없으면 앞으로 날아가요.\n스태미나 34 · 재사용 10초',bS5:'소드 레인 (W)\n조준한 적(없으면 앞쪽) 위로 검 16자루가 비처럼 쏟아져요. 마지막에 충격파가 터져요.\n스태미나 32 · 재사용 10초',bJump:'점프 (Space)\n보스의 파동처럼 낮게 깔리는 공격을 넘어가요.',bRoll:'구르기 (C)\n구르는 동안 무적이에요. 스태미나 22.',bLock:'락온 (Tab / R)\n가까운 적을 조준해요. 다시 누르면 해제돼요.'});
 const tip=$('tip');for(const id of ['bAtk','bSkill','bS1','bS2','bS3','bS4','bS5','bJump','bRoll','bLock']){const b=$(id);
 b.addEventListener('mouseenter',()=>{const ln=TIPS()[id].split('\n');tip.textContent='';const h=document.createElement('b');h.textContent=ln[0];tip.append(h,document.createTextNode(ln.slice(1).join('\n')));tip.hidden=false;const r=b.getBoundingClientRect();tip.style.right=Math.max(16,innerWidth-r.right)+'px';tip.style.bottom=(innerHeight-r.top+10)+'px';});
 b.addEventListener('mouseleave',()=>{tip.hidden=true;});}}
@@ -443,7 +443,7 @@ m.geometry.attributes.position.needsUpdate=true;m.geometry.attributes.color.need
 /* 땅을 박차는 먼지 */
 function kickFx(back){const n2=pl.n.clone().addScaledVector(pl.f,-(back||0.5)/R).normalize();dustFx(n2,1.0,6);const bf=pl.f.clone().negate();sparkFx(n2,0.12,0xd9c9a3,6,2.6,0.35,1.6);ringBurst(n2,0.2,0.9,0xe8dcc0,0.25,0.1);}
 /* 스킬 3종 */
-const SKI={wild:{key:'KeyA',n:'와일드 쇼크',st:25,cd:6,dur:0.85},rise:{key:'KeyS',n:'라이징 슬래시',st:25,cd:5,dur:0.9},sakura:{key:'KeyD',n:'벚꽃 검무',st:30,cd:9,dur:1.8,short:'벚꽃'},chase:{key:'KeyQ',n:'소드 체이서',st:28,cd:8,dur:1.5,short:'추격'},rain:{key:'KeyW',n:'소드 레인',st:32,cd:10,dur:1.9,short:'검우'}};
+const SKI={wild:{key:'KeyA',n:'와일드 쇼크',st:25,cd:6,dur:0.85},rise:{key:'KeyS',n:'라이징 슬래시',st:25,cd:5,dur:0.9},sakura:{key:'KeyD',n:'벚꽃 검무',st:30,cd:9,dur:1.8,short:'벚꽃'},chase:{key:'KeyQ',n:'소드 체이서',st:34,cd:10,dur:2.1,short:'추격'},rain:{key:'KeyW',n:'소드 레인',st:32,cd:10,dur:1.9,short:'검우'}};
 SKI.wild.short='와일';SKI.rise.short='라이';
 function startSkill(id){if(S.dead||!S.running||S.cls!=='warrior'||pl.roll>0||pl.spin>0||pl.sk)return;const D=SKI[id];if(pl.cds[id]>0){toast(D.n+' 준비 중',700);return;}if(pl.st<D.st){toast('스태미나 부족',600);return;}
 pl.st-=D.st;pl.stDelay=0.7;pl.cds[id]=D.cd;pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;pl.atkLock=0;
@@ -485,16 +485,21 @@ const blade=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.025,0.85),m);blade.positi
 const tip=new THREE.Mesh(new THREE.ConeGeometry(0.06,0.3,4),m);tip.rotation.x=PI/2;tip.position.z=1.12;const guard=new THREE.Mesh(new THREE.BoxGeometry(0.36,0.05,0.07),m);guard.position.z=0.1;const grip=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.05,0.28),m);grip.position.z=-0.08;
 g.add(blade,core2,tip,guard,grip);g.scale.setScalar(1.15);return g;}
 const tgtList=(maxd)=>S.ents.filter(e=>e.state!=='dead'&&arc(pl.n,e.n)<maxd).sort((a,b)=>arc(pl.n,a.n)-arc(pl.n,b.n));
-function swordChase(){const list=tgtList(18),N=6,right=V3(0,0,0).crossVectors(pl.n,pl.f).normalize(),f0=pl.f.clone(),n0=pl.n.clone();
-for(let i=0;i<N;i++){const e=list.length?list[i%list.length]:null,ang=(i-(N-1)/2)*0.42,hover=0.45+i*0.1,fly=0.34,fade=0.25,life=hover+fly+fade;
-const mesh=swordMesh(i%2?0x9ee8ff:0xcfe6ff);const start=V3(0,0,0),pos=V3(0,0,0);let launched=false,hit=false,dirF=null;
-const hoverPos=(t)=>{const rise=Math.min(1,t/0.3);return wp(pl.n,1.7+rise*0.5+Math.sin(t*6+i)*0.05).addScaledVector(right,Math.sin(ang)*2.1).addScaledVector(pl.f,-0.9-Math.cos(ang)*0.4);};
-S.world.add(mesh);
-addFx(mesh,life,k=>{const t=k*life;if(t<hover){const p=hoverPos(t);mesh.position.copy(p);const aim=e&&e.state!=='dead'?wp(e.n,e.lift+e.spec.h*0.5):p.clone().addScaledVector(pl.f,5);mesh.lookAt(aim);mesh.visible=true;mesh.scale.setScalar(1.15*Math.min(1,t/0.2));}
-else if(t<hover+fly){if(!launched){launched=true;start.copy(mesh.position);sfx('swing');dirF=pl.f.clone();}const u=(t-hover)/fly,ue=u*u*(3-2*u);let end;if(e&&e.state!=='dead')end=wp(e.n,e.lift+e.spec.h*0.5);else end=start.clone().addScaledVector(dirF,11);
-pos.lerpVectors(start,end,ue);mesh.position.copy(pos);mesh.lookAt(end);if(S.fxs.length<110&&Math.random()<0.8)sparkFx(pl.n,0,0xbfe9ff,1,0.2,0.18,0);
-if(u>0.92&&!hit){hit=true;if(e&&e.state!=='dead'){hitEnt(e,15,pl.n,0.5);sparkFx(e.n,e.lift+e.spec.h*0.5,0x9ee8ff,10,5,0.4,2);ringBurst(e.n,0.3,1.4,0xbfe9ff,0.3,e.lift+0.4);}}}
-else{const u=(t-hover-fly)/fade;mesh.scale.setScalar(1.15*(1-u));}});}
+function swordChase(){const list=tgtList(18),N=30,right=V3(0,0,0).crossVectors(pl.n,pl.f).normalize();
+const HOLD=0.55;let tl=HOLD;
+for(let i=0;i<N;i++){const e=list.length?list[i%list.length]:null,tier=i%3,col=Math.floor(i/3),ang=((col-4.5)/4.5)*1.25,hh=1.8+tier*0.75,rad=2.0+tier*0.35;
+const gap=0.17*Math.pow(0.88,i);const t0=tl;tl+=gap;
+const pull=0.16,fly=Math.max(0.17,0.46-i*0.011),fade=0.2,life=t0+pull+fly+fade;
+const mesh=swordMesh(i%2?0x9ee8ff:0xcfe6ff);const start=V3(0,0,0),dirF=pl.f.clone();let launched=false,hit=false,aimed=null;
+const pm=Math.random()*6;const base=(t)=>wp(pl.n,hh+Math.min(1,t/0.35)*0.4+Math.sin(t*7+pm)*0.05).addScaledVector(right,Math.sin(ang)*rad).addScaledVector(pl.f,-0.7-Math.cos(ang)*0.6);
+const aimPt=()=>e&&e.state!=='dead'?wp(e.n,e.lift+e.spec.h*0.5):(aimed||(aimed=base(0).addScaledVector(dirF,13)));
+S.world.add(mesh);mesh.visible=false;
+addFx(mesh,life,k=>{const t=k*life;mesh.visible=true;
+if(t<t0+pull){const p=base(t);const q=Math.max(0,(t-t0)/pull);if(q>0)p.addScaledVector(mesh.getWorldDirection(V3(0,0,0)),-0.7*q*q);mesh.position.copy(p);mesh.lookAt(aimPt());mesh.scale.set(1.15,1.15,1.15*Math.min(1,t/0.25));if(q>0)mesh.scale.z=1.15*(1-0.25*q);}
+else if(t<t0+pull+fly){if(!launched){launched=true;start.copy(mesh.position);sfx('swing');}const u=(t-t0-pull)/fly,ue=Math.pow(u,2.4),end=aimPt();mesh.position.lerpVectors(start,end,ue);mesh.lookAt(end);mesh.scale.set(1.15,1.15,1.15*(1+u*1.6));
+if(S.fxs.length<170&&Math.random()<0.7)sparkFx(pl.n,0,0xbfe9ff,1,0.2,0.18,0);
+if(u>0.93&&!hit){hit=true;if(e&&e.state!=='dead'){hitEnt(e,7,pl.n,0.35);sparkFx(e.n,e.lift+e.spec.h*0.5,0x9ee8ff,6,5,0.35,2);if(i%3===0)ringBurst(e.n,0.3,1.2,0xbfe9ff,0.25,e.lift+0.4);if(i%5===0)shake(0.05+i*0.003);}}}
+else{const u=(t-t0-pull-fly)/fade;mesh.scale.setScalar(Math.max(0.01,1.15*(1-u)));}});}
 sfx('boom');}
 function swordRain(){const lk=S.lock&&S.lock.state!=='dead'?S.lock:null,near=tgtList(16)[0],tg=lk||near;let cn;if(tg)cn=tg.n.clone();else cn=pl.n.clone().addScaledVector(pl.f,6.5/R).normalize();
 const a=any(cn),b=V3(0,0,0).crossVectors(cn,a).normalize(),Rr=3.6;decalRing(cn,Rr,0x8fd8ff,0.9);
