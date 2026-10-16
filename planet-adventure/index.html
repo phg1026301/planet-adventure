@@ -28,6 +28,22 @@ body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);o
 #tip{position:fixed;z-index:5;max-width:min(280px,calc(100vw - 32px));padding:9px 12px;border-radius:10px;background:rgba(20,16,40,.94);border:1px solid var(--line);color:var(--ink);font-size:13px;line-height:1.5;white-space:pre-line;pointer-events:none;text-align:left}
 #tip b{display:block;font-family:var(--display);font-weight:400;font-size:15px;color:var(--gold);margin-bottom:2px}
 #tip[hidden]{display:none}
+#mini{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:58px;width:150px;height:150px;border-radius:50%;pointer-events:auto;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+#bigmap{position:fixed;inset:0;z-index:30;background:rgba(8,6,24,.72);display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+#bigmap[hidden]{display:none}
+#mapBox{width:min(1100px,100%);height:min(680px,100%);display:flex;flex-direction:column;background:var(--night2);border:2px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#mapHead{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+#mapHead b{font-size:16px;color:var(--gold)}#mapHead .sp{flex:1}
+#mapHead button{font:inherit;color:var(--ink);background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer}
+#mapHead button.on{background:var(--gold);color:#3a2800;border-color:var(--gold)}
+#mapBody{flex:1;min-height:0;display:flex;position:relative}
+#mapC{flex:1;min-width:0;height:100%;touch-action:none;cursor:grab;display:block}
+#mapC:active{cursor:grabbing}
+#mapInfo{position:absolute;left:12px;bottom:12px;width:min(300px,calc(100% - 24px));background:rgba(20,16,48,.9);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.5}
+.mi-h{font-size:16px;font-weight:700;color:var(--gold)}.mi-h em{font-style:normal;font-size:11px;background:#ff4a6b;color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px}
+.mi-t{display:flex;gap:8px;margin:2px 0 4px;color:var(--ink2)}.mi-t b{color:var(--sky)}
+.mi-m{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.mi-m i{font-style:normal;font-size:11px;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 7px}
+.mi-r{margin-top:6px;color:#9ee8a0}
 #tr{position:absolute;right:0;top:12px;display:flex;gap:8px;pointer-events:auto}
 button{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer}
 button:hover{border-color:var(--ink2)}
@@ -84,6 +100,13 @@ button:disabled{opacity:.45;cursor:default}
 <div id="lockMark" hidden></div>
 <div id="ehp" hidden><i></i></div>
 <div id="vig"></div>
+<div id="bigmap" hidden>
+  <div id="mapBox">
+    <div id="mapHead"><b>플래닛 어드벤처 지도</b><div id="mapTabs"><button id="tabW" class="on">월드</button><button id="tabL">현재 지역</button></div><div class="sp"></div><button id="zOut">－</button><button id="zIn">＋</button><button id="mapX">✕</button></div>
+    <div id="mapBody"><canvas id="mapC"></canvas><div id="mapInfo"></div></div>
+  </div>
+</div>
+
 <div id="hud" hidden>
   <div id="tl" class="g">
     <div id="who"><b id="clsName">전사</b><span id="zoneName">마을</span></div>
@@ -93,10 +116,11 @@ button:disabled{opacity:.45;cursor:default}
     <div id="buff"></div>
     <div id="camMode">카메라: 자동 (F5: 마우스 조작)</div>
   </div>
-  <div id="tr" class="g"><button id="btnCalm">멀미 완화: 켜짐</button><button id="btnClass">직업 바꾸기</button><button id="btnSnd">소리 끄기</button></div>
+  <div id="tr" class="g"><button id="btnMap">지도 (M)</button><button id="btnCalm">멀미 완화: 켜짐</button><button id="btnClass">직업 바꾸기</button><button id="btnSnd">소리 끄기</button></div>
+  <canvas id="mini" width="300" height="300"></canvas>
   <div id="bossBar" hidden><div id="bossName">하늘의 폭군 드래곤</div><div class="bar"><i id="bossFill"></i></div></div>
   <div id="toast"></div>
-  <div id="help" class="g"><b>방향키</b> 이동 · <b>Z</b> 공격 · <b>X</b> 스킬 · <b>Space</b> 점프 · <b>C</b> 구르기<br><b>Tab/R</b> 락온 · <b>F</b> 상호작용 · <b>F5</b> 카메라 자동 → 마우스 → 쿼터뷰</div>
+  <div id="help" class="g"><b>방향키</b> 이동 · <b>Z</b> 공격 · <b>X</b> 스킬 · <b>Space</b> 점프 · <b>C</b> 구르기<br><b>Tab/R</b> 락온 · <b>F</b> 상호작용 · <b>M</b> 지도 · <b>F5</b> 카메라 자동 → 마우스 → 쿼터뷰</div>
   <div id="btns" class="g"><button id="bAtk">공격</button><button id="bSkill">스킬</button><button id="bJump">점프</button><button id="bRoll">구르기</button><button id="bLock">락온</button></div>
 </div>
 <div id="start"><div class="card g">
@@ -123,3 +147,4 @@ button:disabled{opacity:.45;cursor:default}
 <script src="house.js"></script>
 <script src="world.js"></script>
 <script src="game.js"></script>
+<script src="map.js"></script>
