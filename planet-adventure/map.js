@@ -3,7 +3,7 @@
 const $=id=>document.getElementById(id),PI=Math.PI;
 const INFO={
 village:{name:'첫 마을',tag:'안전 지역',lv:'—',col:'#8fd16a',side:'#5e9a45',desc:'모험이 시작되는 마을이에요. NPC와 이야기하고, 직업을 바꾸고, 허수아비로 연습할 수 있어요.',mon:[],ico:'house'},
-field:{name:'초원 필드',tag:'사냥터',lv:'Lv 1~5',col:'#b6d95a',side:'#7f9f3a',desc:'선인장, 외계인, 버섯, 오크, 공룡, 벌, 박쥐가 흩어져 살아요. 3마리를 잡으면 보스방 문이 열려요.',mon:['선인장','외계인','버섯','오크','공룡','벌','박쥐'],ico:'tree'},
+field:{name:'초원 필드',tag:'사냥터',lv:'Lv 1~5',col:'#b6d95a',side:'#7f9f3a',desc:'외계인이 흩어져 있어요. 3마리를 잡으면 보스방 문이 열려요.',mon:['외계인'],ico:'tree'},
 boss:{name:'폭군의 둥지',tag:'보스 지역',lv:'Lv 5+',col:'#9a6bd1',side:'#5c3d8a',desc:'하늘의 폭군 드래곤이 기다리는 마법진이에요. 붉은 표시는 구르기, 파동은 점프로 피하세요.',mon:['하늘의 폭군 드래곤'],ico:'spike'},
 lock1:{name:'???',tag:'미개방',lv:'—',col:'#9aa0b4',side:'#6a6f85',desc:'아직 알려지지 않은 땅이에요. 곧 열려요.',mon:[],locked:1},
 lock2:{name:'???',tag:'미개방',lv:'—',col:'#9aa0b4',side:'#6a6f85',desc:'아직 알려지지 않은 땅이에요. 곧 열려요.',mon:[],locked:1},

@@ -113,10 +113,10 @@ field:{n:'필드',sky:0xffe0c0,hemi:[0xfff2dd,0x8a9a5a,0.85],sun:1.1,center:[0.4
  items:[['tree1',4.6,0.42,PI-0.75,0],['tree2',5.2,0.5,PI+0.62,1],['autumn',4.6,0.36,PI+1.1,2],['pine',5.4,0.6,PI-0.25,0],['birch',5.2,0.55,PI+0.2,1],['willow',4.8,0.72,PI-1.2,2],['tree3',5,0.8,PI+0.9,0],['autumn',4.4,0.68,PI-0.55,0.5],['pine',5,0.85,PI+0.45,1.5],
  ['bush',0.7,0.2,PI-0.95,0],['berry',0.7,0.34,PI+0.95,1],['bush',0.8,0.42,PI-0.45,2],['rockMoss',1.0,0.28,PI-0.35,0],['rock',0.8,0.2,PI+0.75,1],['stump',0.7,0.31,PI+0.28,0],['log',0.7,0.42,PI-0.15,1.2],['plant',0.5,0.1,PI+0.35,0]],
  scatter:[['flowers',0.55,40,0.05,0.7],['grass',0.45,45,0.04,0.8],['fern',0.7,16,0.05,0.5],['mush',0.4,12,0.05,0.5],['flowers2',0.6,14,0.05,0.5],['clover',0.3,16,0.05,0.5]],ring:['rock','bush','pine','tree1','pine2','tree2'],
- spawns:[['cactus',1.226,2.962],['alien',1.007,-2.494],['mushroom',0.600,2.366],['orc',0.645,-2.288],['dino',1.142,2.608],['mushroom',0.758,2.942],['bee',1.214,-2.900],['bat',0.980,2.261]],
+ spawns:[['alien',1.226,2.962],['alien',1.007,-2.494],['alien',0.600,2.366],['alien',0.645,-2.288],['alien',1.142,2.608],['alien',0.758,2.942],['alien',1.214,-2.900],['alien',0.980,2.261]],
  portals:[{id:'toVillage',th:0.3,ph:0,to:'village',label:'마을로 돌아가는 문'},{id:'toBoss',th:0.97,ph:PI,to:'boss',label:'보스방 문',needKills:3}]},
 boss:{n:'보스방',sky:0x2b2650,hemi:[0x9a8aff,0x2a2040,0.8],sun:0.6,night:1,center:[0.31,PI],L:14.2,
- items:[],scatter:[['grass',0.4,10,0.15,0.6]],ring:[],portals:[]}};
+ items:[],scatter:[],ring:[],portals:[]}};
 (function(){const it=ZONES.boss.items,cz=-ZONES.boss.center[0]*26,toP=(x,z)=>[Math.hypot(x,z)/26,Math.atan2(x,z)];
 /* 기둥과 조각상은 전투 구역(반지름 14) 바깥 멀리에 둔다. 카메라 시야를 가리지 않게 */
 const put=(k,h,rad,a,face)=>{const x=Math.sin(a)*rad,z=cz+Math.cos(a)*rad,p=toP(x,z);it.push([k,h,p[0],p[1],face?Math.atan2(-(cz-z),-x):0]);};
