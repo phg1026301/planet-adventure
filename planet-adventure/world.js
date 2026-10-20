@@ -10,7 +10,7 @@ const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-per
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
 renderer.outputEncoding=THREE.sRGBEncoding;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 stage.appendChild(renderer.domElement);
-const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(55,1,0.1,300);
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(55,1,0.5,320);
 function resize(){const w=stage.clientWidth||innerWidth,h=stage.clientHeight||innerHeight;renderer.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();}
 new ResizeObserver(resize).observe(stage);resize();
 
@@ -65,6 +65,7 @@ function planetGeo(){const g=new THREE.PlaneGeometry(900,900,1,1);g.rotateX(-Mat
 for(let i=0;i<P.count;i++){U.setXY(i,P.getX(i)/FS+0.5,0.5-P.getZ(i)/FS);}return g;}
 function rrect(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();}
 function shade(hex,a){const n=parseInt(hex.slice(1),16),f=1+a,c=v=>Math.max(0,Math.min(255,(v*f)|0));return 'rgb('+c(n>>16&255)+','+c(n>>8&255)+','+c(n&255)+')';}
+const LZ_inv=(xl,zl)=>[-0.70710678*(xl+zl),0.70710678*(xl-zl)];
 function paintFloor(z){const cv=document.createElement('canvas');cv.width=cv.height=FN;const g=cv.getContext('2d'),rd=rnd(z.length*131+7),X=u=>(u+FS/2)*FK;
 function layer(size,pal,gap,inside,brick,chk,hi){const n=Math.ceil(FS/size)+2;
 for(let j=-n;j<n;j++){const ox=brick&&(j&1)?size/2:0;for(let i=-n;i<n;i++){const x0=i*size+ox,z0=j*size;if(!inside(x0+size/2,z0+size/2))continue;
@@ -74,13 +75,20 @@ if(hi){g.strokeStyle='rgba(255,255,255,0.16)';g.lineWidth=s*0.05;rrect(g,px+gp*1
 const all=()=>true;
 function dots(n,cols,rad,ok){for(let k=0;k<n;k++){const x=(rd()-0.5)*60,zz=(rd()-0.5)*60;if(!ok(x,zz))continue;const c=cols[(rd()*cols.length)|0];
 g.fillStyle=c;for(let p=0;p<5;p++){const a=p*1.2566;g.beginPath();g.arc(X(x+Math.cos(a)*rad),X(zz+Math.sin(a)*rad),rad*0.62*FK,0,7);g.fill();}g.fillStyle='#ffd84a';g.beginPath();g.arc(X(x),X(zz),rad*0.55*FK,0,7);g.fill();}}
-if(z==='village'){const C0=-8.7,pth=(x,zz)=>(Math.abs(x)<2.7&&zz<17&&zz>-30)||(Math.abs(zz-C0)<2.2&&Math.abs(x)<22)||(Math.abs(x)<9&&zz>2&&zz<12&&false),plz=(x,zz)=>Math.hypot(x,zz-C0)<9.4,inn=(x,zz)=>Math.hypot(x,zz-C0)<5.2,hall=(x,zz)=>Math.abs(x)<8&&zz<-21&&zz>-31,yard=(x,zz)=>Math.abs(x+15)<5&&zz>4&&zz<14;
+if(z==='village'){const SQ=0.70710678,LZ=(x,zz)=>[SQ*(zz-x),-SQ*(x+zz)],PC=16,
+ plaza=(x,zz)=>{const p=LZ(x,zz);return Math.hypot(p[0],p[1]-PC)<12;},
+ path=(x,zz)=>{const p=LZ(x,zz);return (Math.abs(p[0])<2.4&&p[1]>-10&&p[1]<6)||(Math.abs(p[0])<5.6&&p[1]>=26&&p[1]<31)||(Math.abs(p[0])<2.2&&p[1]>=6&&p[1]<30);},
+ magic=(x,zz)=>{const p=LZ(x,zz);return Math.hypot(p[0],p[1]-PC)<5.2;};
 layer(1.5,['#86b56a','#7aa95f'],'#5f8f4a',all,0,1,0);
-dots(120,['#ffffff','#ffd1e0','#fff0a0'],0.11,(x,zz)=>!pth(x,zz)&&!plz(x,zz)&&!hall(x,zz)&&!yard(x,zz));
-layer(1.2,['#c8c4d2','#bab6c8','#d2cfdc','#b1adc2'],'#8d89a2',(x,zz)=>pth(x,zz)||plz(x,zz)||hall(x,zz)||yard(x,zz),1,0,1);
-layer(1.0,['#7f98c6','#7089ba','#8aa2cc'],'#4a5f8e',inn,0,1,1);
-g.strokeStyle='#f2c84a';g.lineWidth=0.34*FK;for(const rr of [9.2,5.0,1.6]){g.beginPath();g.arc(X(0),X(C0),rr*FK,0,7);g.stroke();}
-g.strokeStyle='rgba(255,236,160,.9)';g.lineWidth=0.14*FK;g.beginPath();for(let k=0;k<12;k++){const a=k*Math.PI/6;g.moveTo(X(Math.cos(a)*1.6),X(C0+Math.sin(a)*1.6));g.lineTo(X(Math.cos(a)*9.2),X(C0+Math.sin(a)*9.2));}g.stroke();}
+dots(150,['#ffffff','#ffd1e0','#fff0a0'],0.11,(x,zz)=>!plaza(x,zz)&&!path(x,zz));
+layer(1.2,['#eadfba','#e0d3a6','#f1e8c8','#d9cc9c'],'#b9aa78',(x,zz)=>plaza(x,zz)||path(x,zz),1,0,1);
+layer(1.0,['#cfeff0','#bfe6ea','#d9f5f3'],'#8cc9cc',magic,0,1,1);
+const pc=LZ_inv(0,PC);
+g.save();g.lineCap='round';
+g.strokeStyle='#e8b93a';g.lineWidth=0.34*FK;for(const rr of [11.4,5.2]){g.beginPath();g.arc(X(pc[0]),X(pc[1]),rr*FK,0,7);g.stroke();}
+g.strokeStyle='rgba(214,190,120,.9)';g.lineWidth=0.12*FK;g.beginPath();for(let k=0;k<24;k++){const a=k*Math.PI/12;g.moveTo(X(pc[0]+Math.cos(a)*5.6),X(pc[1]+Math.sin(a)*5.6));g.lineTo(X(pc[0]+Math.cos(a)*11.2),X(pc[1]+Math.sin(a)*11.2));}g.stroke();
+g.strokeStyle='#4fd6bd';g.shadowColor='#7affe4';g.shadowBlur=18;g.lineWidth=0.22*FK;for(const rr of [4.2,2.6]){g.beginPath();g.arc(X(pc[0]),X(pc[1]),rr*FK,0,7);g.stroke();}
+g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3+0.3;const px=X(pc[0]+Math.cos(a)*4.2),py=X(pc[1]+Math.sin(a)*4.2);k?g.lineTo(px,py):g.moveTo(px,py);}g.closePath();g.stroke();g.restore();}
 else if(z==='field'){const px=zz=>2.6*Math.sin(zz*0.22+1),pth=(x,zz)=>zz<14&&zz>-40&&Math.abs(x-px(zz))<1.6;
 layer(1.6,['#a3cf5c','#94c24f'],'#78a73e',all,0,1,0);
 dots(260,['#ffffff','#ff9ec4','#ffe27a','#b5a0ff'],0.12,(x,zz)=>!pth(x,zz));
@@ -119,45 +127,28 @@ field:{n:'필드',sky:0xffe0c0,hemi:[0xfff2dd,0x8a9a5a,0.85],sun:1.1,center:[0.4
  portals:[{id:'toVillage',th:0.3,ph:0,to:'village',label:'마을로 돌아가는 문'},{id:'toBoss',th:0.97,ph:PI,to:'boss',label:'보스 스테이지 문',needKills:1}]},
 boss:{n:'보스 스테이지',sky:0x2b2650,hemi:[0x9a8aff,0x2a2040,0.8],sun:0.6,night:1,center:[0.31,PI],L:14.2,
  items:[],scatter:[],ring:[],portals:[]}};
-(function(){const Z=ZONES.village,C0=-8.7,tp=(x,z)=>[Math.hypot(x,z)/26,Math.atan2(x,z)],it=[];
-Object.assign(Z,{n:'마을',sky:0xb7cdea,hemi:[0xf4f6ff,0x6a7ca2,0.92],sun:1.1,center:[-C0/26,PI],L:28});
-const face=(x,z)=>Math.atan2(z-C0,-x);
-const P=(k,h,x,z,sp,fc)=>{const p=tp(x,z);it.push([k,h,p[0],p[1],fc?face(x,z):(sp||0)]);};
-/* 중앙 광장: 거대한 영웅상과 깃발 */
-P('statue',6.5,0,C0,0,0);
-for(let i=0;i<8;i++){const a=i*PI/4+PI/8,x=Math.sin(a)*7.6,z=C0+Math.cos(a)*7.6;P('pbanner',2.0,x,z,0,1);}
-for(let i=0;i<6;i++){const a=i*PI/3,x=Math.sin(a)*11.6,z=C0+Math.cos(a)*11.6;if(Math.abs(x)<4&&z>C0+8)continue;P('column',4.6,x,z,0,0);}
-/* 북쪽: 레이드 본부 (여관을 크게) + 양옆 기둥과 조각상 */
-P('inn',9.5,0,-31,PI/2*0+face(0,-31)-face(0,-31)+0,1);
-for(const sx of[-1,1]){P('column',6.2,sx*8.5,-24,0,0);P('statue',4.2,sx*13,-27,0,1);P('pbanner',2.6,sx*5.2,-23.2,0,1);P('houseB',6.6,sx*20,-27,0,1);}
-/* 동서 건물: 병영, 공방, 상점 */
-P('houseB',6.8,-19,-15,0,1);P('houseB',6.8,19,-15,0,1);
-P('houseM',6.2,-23,-5,0,1);P('houseM',6.2,23,-5,0,1);
-P('cottage',5.6,-21,5,0,1);P('cottage',5.6,21,5,0,1);
-/* 공방(대장간) */
-P('anvil',1.0,-15.5,-10,0.6,0);P('weaponstand',1.2,-15,-13,0,1);P('barrel',0.8,-16.5,-12.5,0,0);P('crates',1.1,-15.2,-7.5,0.4,0);
-/* 상점 노점 */
-P('stall',2.8,15.5,-10,0,1);P('stall',2.8,16.5,-5.5,0,1);P('cart',2.5,14.5,-1,2.4,0);P('barrel',0.8,17,-8,0,0);P('barrelA',0.8,13.8,-12,0.5,0);
-/* 훈련장 */
-for(let i=0;i<3;i++)P('dummy',1.9,-17+i*2.6,9,0,1);P('weaponstand',1.2,-12.5,12.5,0,1);P('weaponstand',1.2,-17.5,12.5,0,1);P('bench',0.8,-20,9,0,1);
-/* 보급 */
-P('wagon',1.7,16,12,-1.0,0);P('crates',1.1,18,10,0.3,0);P('crates',1.1,19.3,11.3,0.8,0);P('barrel',0.8,13,11,0,0);P('bench',0.8,13,2,0,1);P('bench',0.8,-13,2,0,1);
-/* 우물 */
-P('well',2.6,-6.5,-2.5,0.3,0);
-/* 정문: 포탈 양옆 기둥과 깃발 */
-for(const sx of[-1,1]){P('column',6.0,sx*4.2,7.8,0,0);P('pbanner',2.4,sx*3.0,8.6,0,1);P('brocks',0.9,sx*6.4,7.2,0,0);}
-/* 외곽 기둥 성벽 */
-for(let i=0;i<22;i++){const a=PI*0.12+i*(PI*2-PI*0.24)/21,x=Math.sin(a)*26.6,z=C0+Math.cos(a)*26.6;if(z>C0+20&&Math.abs(x)<9)continue;P('column',5.0,x,z,0,0);if(i%2===0){const a2=a+0.05,x2=Math.sin(a2)*26.2,z2=C0+Math.cos(a2)*26.2;P('pbanner',2.2,x2,z2,0,1);}}
-Z.items=it;Z.scatter=[['flowers',0.55,16,0.06,0.5],['grass',0.45,22,0.05,0.7]];Z.ring=['brocks','bbush','btree4'];
-const nc=(x,z,tint,talk,clip)=>{const p=tp(x,z);return {k:'robot',h:1.55,th:p[0],ph:p[1],spin:face(x,z),clip:clip||'Wave',tint,talk};};
+(function(){const Z=ZONES.village,SQ=0.70710678,wxz=(xl,zl)=>[-SQ*(xl+zl),SQ*(xl-zl)],tp=(xl,zl)=>{const p=wxz(xl,zl);return [Math.hypot(p[0],p[1])/26,Math.atan2(p[0],p[1])];},it=[];
+const cc=tp(0,20);
+Object.assign(Z,{n:'마을',sky:0x6fb6ee,hemi:[0xfff4e0,0x7fae6a,0.6],sun:0.72,center:cc,L:31,village2:1});
+const P=(k,h,xl,zl,sp)=>{const p=tp(xl,zl);it.push([k,h,p[0],p[1],sp||0]);};
+/* 소품: 모두 로컬 좌표(xl: 왼쪽+, zl: 앞쪽+) */
+P('well',2.6,10,3,0.3);
+P('anvil',1.0,17,13,0.6);P('weaponstand',1.2,17.5,10.5,0);P('barrel',0.8,16.2,16,0);P('crates',1.1,16.6,8.2,0.4);
+P('stall',2.8,-16,12,0);P('stall',2.8,-16.5,17.5,0);P('cart',2.5,-14,7,2.4);P('barrel',0.8,-17.5,14.5,0);
+for(let i=0;i<3;i++)P('dummy',1.9,8+i*2.8,-4,0);P('weaponstand',1.2,12,-7.5,0);
+P('bench',0.8,-9,3.5,0.3);P('bench',0.8,-13,24.5,1.57);P('bench',0.8,13,24.5,1.57);
+P('wagon',1.7,-14,26,-1.0);P('crates',1.1,-12.5,27.5,0.3);
+Z.items=it;Z.scatter=[['flowers',0.55,14,0.06,0.5],['grass',0.45,22,0.05,0.7]];Z.ring=['bbush','btree4'];
+const nc=(xl,zl,tint,talk,clip)=>{const p=tp(xl,zl);return {k:'robot',h:1.55,th:p[0],ph:p[1],spin:0,clip:clip||'Wave',tint,talk,face:[xl,zl]};};
 Z.npcs=[
-nc(-4,3,0xff8fb5,['[안내 요원 로비] 마을에 온 걸 환영해!','[안내 요원 로비] 정문 포탈로 나가면 사냥터야. 몬스터 1마리만 잡아도 보스 스테이지 문이 열려.','[안내 요원 로비] 방향키를 두 번 누르면 대쉬, 구르기는 C야.']),
-nc(0,-22.5,0xffd45a,['[레이드 사령관 가렌] 하늘의 폭군 드래곤이 보스 스테이지에 둥지를 틀었다.','[레이드 사령관 가렌] 앱솔루트 저지먼트를 차징해서 한 방에 베어버려! 그 검기는 보스도 버티지 못한다.','[레이드 사령관 가렌] 필드에서 몬스터를 1마리만 처치하면 보스 스테이지 문이 열린다. 서둘러라.'],'Idle'),
-nc(-13.5,-10.5,0xff9a4a,['[대장장이 브론] 칼날은 날카롭게, 마음은 뜨겁게! 아직 무기는 최고 성능이야.','[대장장이 브론] 소드 체이서는 검 200자루가 뒤에서 쏟아지는 스킬이지. 정말 멋있지 않아?']),
-nc(14,-7.5,0x7ad98a,['[상인 모아] 어서 와요! 아쉽지만 지금은 물건을 팔지 않아요. 구경만 하세요~','[상인 모아] 우물물을 마시면 체력과 스태미나가 가득 차요. F키를 눌러보세요.']),
-nc(-14.8,6.8,0x6fa8ff,['[훈련 교관 레나] 허수아비를 쳐보면서 기본 공격 3타 콤보를 익혀 봐.','[훈련 교관 레나] 라이징 슬래시는 땅에서 검이 지그재그로 솟아올라. 범위가 넓으니 모여 있는 적에게 써!','[훈련 교관 레나] 발상발파는 10번 베어서 주변을 정리하는 스킬이야.'])
+nc(-5,7,0xff8fb5,['[안내 요원 로비] 마을에 온 걸 환영해!','[안내 요원 로비] 정문 포탈로 나가면 사냥터야. 몬스터 1마리만 잡아도 보스 스테이지 문이 열려.','[안내 요원 로비] 방향키를 두 번 누르면 대쉬, 구르기는 C야.']),
+nc(0,45,0xffd45a,['[레이드 사령관 가렌] 하늘의 폭군 드래곤이 보스 스테이지에 둥지를 틀었다.','[레이드 사령관 가렌] 앱솔루트 저지먼트를 차징해서 한 방에 베어버려! 그 검기는 보스도 버티지 못한다.','[레이드 사령관 가렌] 필드에서 몬스터를 1마리만 처치하면 보스 스테이지 문이 열린다. 서둘러라.'],'Idle'),
+nc(14.5,11.5,0xff9a4a,['[대장장이 브론] 칼날은 날카롭게, 마음은 뜨겁게! 아직 무기는 최고 성능이야.']),
+nc(-13.5,14.5,0x7ad98a,['[상인 모아] 어서 와요! 아쉽지만 지금은 물건을 팔지 않아요. 구경만 하세요~','[상인 모아] 우물물을 마시면 체력과 스태미나가 가득 차요. F키를 눌러보세요.']),
+nc(9,-8.2,0x6fa8ff,['[훈련 교관 레나] 허수아비를 쳐보면서 기본 공격 3타 콤보를 익혀 봐.','[훈련 교관 레나] 라이징 슬래시는 땅에서 검이 지그재그로 솟아올라. 범위가 넓으니 모여 있는 적에게 써!','[훈련 교관 레나] 발상발파는 10번 베어서 주변을 정리하는 스킬이야.'])
 ];
-Z.wells=[(()=>{const p=tp(-6.5,-2.5);return {th:p[0],ph:p[1]};})()];
+Z.wells=[(()=>{const p=tp(10,3);return {th:p[0],ph:p[1]};})()];
+Z.portals=[(()=>{const p=tp(0,-9);return {id:'toField',th:p[0],ph:p[1],to:'field',label:'필드로 가는 문'};})()];
 })();
 (function(){const it=ZONES.boss.items,cz=-ZONES.boss.center[0]*26,toP=(x,z)=>[Math.hypot(x,z)/26,Math.atan2(x,z)];
 /* 기둥과 조각상은 전투 구역(반지름 14) 바깥 멀리에 둔다. 카메라 시야를 가리지 않게 */
@@ -168,7 +159,7 @@ for(let k=0;k<5;k++)put('bricks',0.9,19.5,0.4+k*1.3,0);})();
 
 function floorXY(n){const sn=Math.hypot(n.x,n.z),th=Math.atan2(sn,n.y),s=R*th;return sn<1e-14?[0,0]:[s*n.x/sn,s*n.z/sn];}
 function onPath(zone,n){const [x,z]=floorXY(n);
-if(zone==='village'){return (Math.abs(x)<3&&z<17&&z>-30)||(Math.abs(z+8.7)<2.5&&Math.abs(x)<22)||Math.hypot(x,z+8.7)<9.8||(Math.abs(x)<8.5&&z<-21&&z>-31);}
+if(zone==='village'){const SQ=0.70710678,xl=SQ*(z-x),zl=-SQ*(x+z);return Math.hypot(xl,zl-16)<12.6||(Math.abs(xl)<3&&zl>-10&&zl<32)||(Math.abs(xl)<6&&zl>=22)||Math.abs(xl)>=18&&Math.abs(xl)<=27&&zl>1&&zl<29||zl>=29||(Math.abs(xl-10)<5&&Math.abs(zl)<9);}
 if(zone==='field'){const px=2.6*Math.sin(z*0.22+1);return z<14&&z>-40&&Math.abs(x-px)<1.9;}
 return false;}
 window.W={SOLID_X,floorXY,onPath,R,C,V3,clamp,renderer,scene,cam,stage,orient,toN,arc,dirTo,stepOn,moveAlong,turnToward,rotAbout,pointAt,load,inst,findClip,failed,planetGeo,floorTex,ZONES,SOLID,rnd,PI,cache};

@@ -18,17 +18,17 @@ function zoneKey(){return S.zone||'village';}
 function ok(){return bind()&&S.Z&&S.cN&&pl&&pl.n;}
 
 /* ---------- 미니맵 ---------- */
-function drawMini(){if(!ok()||!mc)return;const W=mini.width,H=mini.height,c=W/2,rad=c-3,view=26;mc.clearRect(0,0,W,H);
-mc.save();mc.beginPath();mc.arc(c,c,rad,0,PI*2);mc.clip();
+function drawMini(){if(!ok()||!mc)return;const W=mini.width,H=mini.height,c=W/2,cy=H/2,rad=c-3,view=21;mc.clearRect(0,0,W,H);
+mc.save();mc.beginPath();mc.rect(0,0,W,H);mc.clip();
 mc.fillStyle='#1c2547';mc.fillRect(0,0,W,H);const sc=rad/view,[px,pz]=loc(pl.n);
-const T=(x,z)=>[c+(x-px)*sc,c+(z-pz)*sc];
+const T=(x,z)=>[c+(x-px)*sc,cy+(z-pz)*sc];
 {const o=T(0,0);mc.beginPath();mc.arc(o[0],o[1],S.Z.L*sc,0,PI*2);mc.fillStyle=zoneCol(0.9);mc.fill();mc.lineWidth=2;mc.strokeStyle='rgba(255,255,255,.7)';mc.stroke();}
-for(const s of S.solids){const [x,z]=loc(s.n),p=T(x,z);if(Math.abs(p[0]-c)>rad+9||Math.abs(p[1]-c)>rad+9)continue;mc.beginPath();mc.arc(p[0],p[1],Math.max(1.5,s.r*sc*0.7),0,PI*2);mc.fillStyle='rgba(60,45,35,.55)';mc.fill();}
+for(const s of S.solids){const [x,z]=loc(s.n),p=T(x,z);if(Math.abs(p[0]-c)>rad+9||Math.abs(p[1]-cy)>rad+9)continue;mc.beginPath();mc.arc(p[0],p[1],Math.max(1.5,s.r*sc*0.7),0,PI*2);mc.fillStyle='rgba(60,45,35,.55)';mc.fill();}
 for(const q of S.portals){const [x,z]=loc(q.n),p=T(x,z);mc.beginPath();mc.arc(p[0],p[1],5,0,PI*2);mc.fillStyle=q.locked?'#888':'#7fe3ff';mc.fill();mc.strokeStyle='#fff';mc.lineWidth=1.5;mc.stroke();}
 for(const n of S.npcs){const [x,z]=loc(n.n),p=T(x,z);mc.beginPath();mc.arc(p[0],p[1],3.5,0,PI*2);mc.fillStyle='#7dff9a';mc.fill();}
 for(const e of S.ents){if(e.state==='dead')continue;const [x,z]=loc(e.n),p=T(x,z);mc.beginPath();mc.arc(p[0],p[1],e.boss?6:3.5,0,PI*2);mc.fillStyle=e.boss?'#ff3b3b':'#ff7a6b';mc.fill();mc.strokeStyle='rgba(0,0,0,.6)';mc.lineWidth=1;mc.stroke();}
-arrow(mc,c,c,pl.f,7);
-mc.restore();mc.beginPath();mc.arc(c,c,rad,0,PI*2);mc.lineWidth=3;mc.strokeStyle='rgba(255,246,223,.75)';mc.stroke();}
+arrow(mc,c,cy,pl.f,7);
+mc.restore();}
 function zoneCol(a){const k=zoneKey();return k==='boss'?'rgba(70,45,110,'+a+')':k==='field'?'rgba(120,160,70,'+a+')':'rgba(110,170,100,'+a+')';}
 function arrow(g,x,y,f,s){const a=Math.atan2(f.z,f.x);g.save();g.translate(x,y);g.rotate(a);g.beginPath();g.moveTo(s*1.3,0);g.lineTo(-s*0.9,s*0.85);g.lineTo(-s*0.4,0);g.lineTo(-s*0.9,-s*0.85);g.closePath();g.fillStyle='#ffd45a';g.fill();g.lineWidth=1.5;g.strokeStyle='#5a3b00';g.stroke();g.restore();}
 
