@@ -14,19 +14,21 @@ body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);o
 #hud{position:absolute;inset:0;pointer-events:none}
 #hud[hidden]{display:none}
 #tl{position:absolute;left:0;top:12px;width:min(300px,64vw);display:flex;flex-direction:column;gap:6px}
-#who{display:flex;align-items:baseline;gap:8px;font-family:var(--display);font-size:20px;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-#who span{font-size:14px;color:var(--ink2)}
+#who{display:flex;align-items:baseline;gap:10px;font-family:var(--display);font-size:28px;color:#fff;paint-order:stroke fill;-webkit-text-stroke:5px rgba(20,12,40,.88);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+#who span{font-size:20px;color:#ffe27a}
 .bar{position:relative;height:16px;border-radius:9px;background:rgba(0,0,0,.45);border:1.5px solid var(--line);overflow:hidden}
 .bar i{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:8px}
 .bar.hp i{background:var(--coral)}
 .bar.st i{background:var(--sky)}
 .bar.st{height:10px}
 .bar span{position:absolute;inset:0;font-size:11px;line-height:13px;text-align:center;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.6)}
-#quest{font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px;line-height:1.4}
-#camMode{font-size:12px;color:var(--ink2);text-shadow:0 1px 2px rgba(0,0,0,.7)}
-#buff{font-size:13px;color:var(--gold);text-shadow:0 1px 2px rgba(0,0,0,.7);min-height:1em}
-#tip{position:fixed;z-index:5;max-width:min(280px,calc(100vw - 32px));padding:9px 12px;border-radius:10px;background:rgba(20,16,40,.94);border:1px solid var(--line);color:var(--ink);font-size:13px;line-height:1.5;white-space:pre-line;pointer-events:none;text-align:left}
-#tip b{display:block;font-family:var(--display);font-weight:400;font-size:15px;color:var(--gold);margin-bottom:2px}
+#quest{font-size:16px;font-weight:700;color:#fff;background:rgba(18,14,40,.92);border:1px solid rgba(255,255,255,.25);border-left:5px solid var(--gold);border-radius:10px;padding:8px 12px;line-height:1.45;text-shadow:0 1px 2px #000}
+#quest .qn{color:var(--gold);font-size:18px}
+#camMode{align-self:flex-start;font-size:15px;color:#fff;background:rgba(18,14,40,.9);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:5px 11px;opacity:0;transition:opacity .35s;text-shadow:0 1px 2px #000}
+#camMode.on{opacity:1}
+#buff{font-size:16px;color:var(--gold);text-shadow:0 1px 2px #000,0 0 4px #000;min-height:1em}
+#tip{position:fixed;z-index:5;max-width:min(320px,calc(100vw - 32px));padding:10px 14px;border-radius:10px;background:rgba(14,10,32,.96);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:15px;line-height:1.5;white-space:pre-line;pointer-events:none;text-align:left}
+#tip b{display:block;font-family:var(--display);font-weight:400;font-size:18px;color:var(--gold);margin-bottom:2px}
 #tip[hidden]{display:none}
 #mini{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:58px;width:150px;height:150px;border-radius:50%;pointer-events:auto;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.5)}
 #bigmap{position:fixed;inset:0;z-index:30;background:rgba(8,6,24,.72);display:flex;align-items:center;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
@@ -45,6 +47,8 @@ body{margin:0;background:var(--night);color:var(--ink);font-family:var(--body);o
 .mi-m{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.mi-m i{font-style:normal;font-size:11px;background:rgba(255,255,255,.12);border-radius:6px;padding:2px 7px}
 .mi-r{margin-top:6px;color:#9ee8a0}
 #tr{position:absolute;right:0;top:12px;display:flex;gap:8px;pointer-events:auto}
+#btnCalm{display:none}
+#tr button{font-size:15px;color:#fff;background:rgba(18,14,40,.9);border-color:rgba(255,255,255,.35);text-shadow:0 1px 2px #000}
 button{font-family:var(--body);font-size:14px;color:var(--ink);background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer}
 button:hover{border-color:var(--ink2)}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -52,14 +56,56 @@ button:disabled{opacity:.45;cursor:default}
 #bossBar{position:absolute;left:50%;transform:translateX(-50%);bottom:76px;width:min(560px,80vw);text-align:center}
 #bossBar[hidden]{display:none}
 #bossName{font-family:var(--display);font-size:18px;letter-spacing:.04em;text-shadow:0 2px 0 rgba(0,0,0,.45);margin-bottom:4px}
+#bossX{position:absolute;right:-4px;top:-4px;font:22px var(--display);color:#fff;text-shadow:0 0 4px #000,0 2px 0 #000}
 #bossBar .bar{height:14px;border-radius:3px}
 #bossBar .bar i{border-radius:2px;background:linear-gradient(#ff9a6b,#e5473b)}
 #toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);font-family:var(--display);font-size:clamp(20px,4vw,30px);text-align:center;text-shadow:0 3px 0 rgba(0,0,0,.45);opacity:0;transition:opacity .25s;white-space:nowrap}
 #toast.on{opacity:1}
-#help{position:absolute;left:0;bottom:12px;font-size:12px;color:var(--ink2);line-height:1.55;text-shadow:0 1px 2px rgba(0,0,0,.7)}
-#help b{color:var(--ink);font-weight:400;background:rgba(255,255,255,.14);border-radius:4px;padding:0 5px}
-#btns{position:absolute;right:0;bottom:12px;display:flex;gap:8px;pointer-events:auto}
-#btns button{width:50px;height:50px;border-radius:50%;padding:0;font-family:var(--display);font-size:15px;line-height:1.1}
+#toast.ult{font-size:clamp(32px,6.4vw,58px);letter-spacing:.06em;background:linear-gradient(180deg,#fffbc0 0%,#ffd23a 38%,#ff4a2a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px #4a0808;text-shadow:none;filter:drop-shadow(0 0 14px #ff5a2a) drop-shadow(0 3px 0 rgba(0,0,0,.55))}
+#mhp{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.ptl{position:absolute;transform:translate(-50%,-100%);display:none;padding:6px 20px;border-radius:12px;background:linear-gradient(180deg,rgba(32,24,56,.9),rgba(14,10,30,.9));border:3px solid #8fe3ff;color:#fff;font:24px var(--display);white-space:nowrap;text-shadow:0 2px 0 rgba(0,0,0,.5);box-shadow:0 0 16px rgba(143,227,255,.6)}
+.mb{position:absolute;transform:translate(-50%,-100%);width:92px;text-align:center;display:none}
+.mb .mn{font:14px var(--display);color:#fff;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000;margin-bottom:1px}
+.mb .mbar{height:10px;border-radius:5px;background:rgba(20,10,10,.8);border:2px solid #ffe08a;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.5)}
+.mb .mbar i{display:block;height:100%;width:100%;background:linear-gradient(#ff8a7a,#e5352b)}
+.mb .mt{font:11px var(--display);color:#fff;text-shadow:0 0 3px #000,0 0 3px #000;margin-top:1px}
+#pt{position:absolute;left:14px;bottom:12px;display:none;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
+#pt canvas{width:92px;height:92px;border-radius:50%;border:4px solid #ffd45a;box-shadow:0 0 0 3px #3a2410,0 4px 10px rgba(0,0,0,.55);background:#2a2a44}
+#pt b{font:16px var(--display);color:#fff;padding:1px 14px;border-radius:8px;background:rgba(20,16,40,.85);border:2px solid #ffd45a;margin-top:-14px;position:relative}
+@media (min-width:1000px){#pt{display:flex}}
+#npcTip[hidden]{display:none}
+#npcTip{position:absolute;left:0;top:0;transform:translate(-50%,-100%);pointer-events:auto;cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;border-radius:999px;background:rgba(20,16,40,.84);border:2px solid #ffd45a;color:#fff;font:18px var(--display);box-shadow:0 0 14px rgba(255,212,90,.6);white-space:nowrap;animation:tipb 1s ease-in-out infinite;z-index:6}
+#npcTip b{display:grid;place-items:center;width:28px;height:28px;border-radius:7px;background:linear-gradient(#ffe38a,#ffb52e);color:#3a2300;font:18px var(--display);border:2px solid #fff6c8}
+@keyframes tipb{50%{margin-top:-6px}}
+#dlg{position:absolute;left:50%;bottom:clamp(120px,19vh,180px);transform:translateX(-50%);width:min(760px,94vw);display:flex;align-items:flex-end;pointer-events:auto;cursor:pointer;z-index:6}
+#dlg[hidden]{display:none}
+#dlg .pt{flex:none;width:clamp(80px,13vw,116px);height:clamp(80px,13vw,116px);margin-right:-14px;border-radius:50%;display:grid;place-items:center;font-size:clamp(42px,7vw,60px);background:radial-gradient(circle at 35% 30%,#fff6c8,#ffb84a 55%,#a8561a);border:4px solid #ffe08a;box-shadow:0 0 0 3px #3a2410,0 6px 16px rgba(0,0,0,.5);z-index:2}
+#dlg .bx{position:relative;flex:1;min-width:0;min-height:100px;padding:26px 24px 20px 28px;border-radius:14px;background:linear-gradient(180deg,rgba(32,24,56,.95),rgba(14,10,30,.95));border:3px solid #ffd45a;box-shadow:0 0 0 2px #3a2410,0 8px 24px rgba(0,0,0,.55)}
+#dlg .nm{position:absolute;left:22px;top:-17px;padding:3px 18px;border-radius:8px;background:linear-gradient(#ffe38a,#f2a21e);border:2px solid #fff3b8;color:#3a2300;font:20px var(--display);box-shadow:0 3px 0 rgba(0,0,0,.4)}
+#dlg .tx{color:#fff;font:19px/1.55 var(--body);min-height:58px;word-break:keep-all}
+#dlg .nx{position:absolute;right:16px;bottom:6px;color:#ffd45a;font:15px var(--display);animation:nxb .8s infinite}
+@keyframes nxb{50%{transform:translateY(4px)}}
+
+#help{font-size:14px!important;position:absolute;right:max(16px,env(safe-area-inset-right,0px));top:228px;width:236px;padding:9px 11px;border-radius:12px;background:rgba(20,16,40,.82);border:1px solid var(--line);font-size:13px;line-height:1.45;color:var(--ink);display:flex;flex-direction:column;gap:5px;text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none}
+#help .ht{font-family:var(--display);font-weight:400;font-size:15px;color:var(--gold)}
+#help>div{display:flex;gap:8px}#help i{font-style:normal;color:var(--ink2);min-width:62px;flex:none}#help span{min-width:0}
+#help kbd{font:inherit;font-size:12px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);border-bottom-width:2px;border-radius:5px;padding:0 5px;margin:0 1px;color:#fff}
+#dim{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(40,10,0,0) 45%,rgba(30,6,0,.7) 100%);opacity:0;pointer-events:none;transition:opacity .12s linear}#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#dock{position:absolute;left:50%;transform:translateX(-50%) scale(var(--ds,1));transform-origin:bottom center;bottom:max(8px,env(safe-area-inset-bottom,0px));display:flex;align-items:flex-end;gap:8px;pointer-events:auto}
+#sk1{display:flex;align-items:flex-end;gap:4px}
+#dock .sp{margin-left:12px}
+#dock button{position:relative;flex:none;width:54px;height:54px;padding:0;border-radius:10px;border:3px solid var(--bc,#b8913f);box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55),0 2px 4px rgba(0,0,0,.5);overflow:hidden;cursor:pointer;background:#2a2350}
+#dock button[hidden]{display:none!important}
+#dock button.rdy{box-shadow:inset 0 0 0 1.5px rgba(0,0,0,.55),0 0 9px 1px var(--bc),0 2px 4px rgba(0,0,0,.5)}
+#dock .cnt{position:absolute;left:2px;top:1px;font:15px/16px var(--display);color:#fff;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000}
+#dock button:hover{border-color:#ffe08a}#dock button:active{transform:translateY(1px)}
+#dock .ic{position:absolute;inset:0}#dock .ic svg{width:100%;height:100%;display:block}
+#dock em{position:absolute;right:2px;bottom:0;font:700 13px/14px var(--display);font-style:normal;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000,0 1px 2px #000}
+#dock .cdo{position:absolute;left:0;right:0;top:0;height:0;background:rgba(10,8,25,.72)}
+#dock .cdn{position:absolute;inset:0;display:grid;place-items:center;font:18px var(--display);text-decoration:none;color:#fff;text-shadow:0 1px 3px #000}
+#dock button.low .ic{filter:grayscale(.7) brightness(.7)}
+#orb{filter:drop-shadow(0 3px 5px rgba(0,0,0,.6))}#orb .ot{fill:#fff;font-family:var(--display);text-anchor:middle;opacity:1;paint-order:stroke;stroke:#000;stroke-width:3px;stroke-opacity:.7}
+#orb .ov{fill:#fff;font-family:var(--display);font-size:15px;text-anchor:middle;paint-order:stroke;stroke:#000;stroke-width:4px;stroke-opacity:.7}
 #lockMark{position:absolute;pointer-events:none;width:26px;height:26px;margin:-13px 0 0 -13px;border:3px solid var(--gold);transform:rotate(45deg);border-radius:4px;box-shadow:0 0 10px var(--gold)}
 #lockMark[hidden]{display:none}
 #floaters{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -92,9 +138,10 @@ button:disabled{opacity:.45;cursor:default}
 .keys b{font-weight:400;color:var(--ink)}
 #fade{position:absolute;inset:0;background:#0b0818;opacity:0;pointer-events:none;transition:opacity .35s}
 #fade.on{opacity:1}
-@media (max-width:560px){#help{display:none}#bossBar{bottom:84px}.pick{grid-template-columns:1fr}}
+@media (max-width:760px){#help{display:none}}
+@media (max-width:560px){#bossBar{bottom:84px}.pick{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.fl{animation-duration:.01s}}
-</style>
+#fedge{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(255,80,20,0) 52%,rgba(255,70,20,.5) 82%,rgba(190,25,0,.78) 100%)}#sline{position:absolute;left:0;right:0;top:46%;height:3px;pointer-events:none;opacity:0;transform:scaleX(0);background:linear-gradient(90deg,transparent,#fff1c8 18%,#fff1c8 82%,transparent);box-shadow:0 0 14px 3px rgba(255,140,50,.75)}#wg{position:absolute;left:50%;bottom:98px;transform:translateX(-50%);display:none;align-items:center;gap:8px;pointer-events:none}#wg.on{display:flex}#wg span{color:#ffe6b8;font-weight:800;font-size:14px;text-shadow:0 1px 3px #000,0 0 6px #000}#wgb{position:relative;width:260px;height:14px;border-radius:8px;background:rgba(20,8,4,.7);border:2px solid #ffe0a0;overflow:hidden}#wgb i{position:absolute;top:0;bottom:0;width:2px;background:#ffe0a0;opacity:.7;z-index:2}#wgb i:nth-child(1){left:33%}#wgb i:nth-child(2){left:66%}#wgf{height:100%;width:0;background:linear-gradient(90deg,#ff9a3a,#ffb74a)}#wgf.s1{background:linear-gradient(90deg,#ff7a2a,#ff9a3a)}#wgf.s2{background:linear-gradient(90deg,#e0360f,#ff6a20)}#wgf.s3{background:linear-gradient(90deg,#ffb020,#fff0a0);animation:wgp .16s infinite alternate}@keyframes wgp{to{filter:brightness(1.5)}}#wg.pop #wgb{animation:wgpop .28s}@keyframes wgpop{50%{transform:scale(1.08)}}</style>
 <div id="stage"></div>
 <div id="floaters"></div>
 <div id="lockMark" hidden></div>
@@ -110,27 +157,49 @@ button:disabled{opacity:.45;cursor:default}
 <div id="hud" hidden>
   <div id="tl" class="g">
     <div id="who"><b id="clsName">전사</b><span id="zoneName">마을</span></div>
-    <div class="bar hp"><i id="hpFill"></i><span id="hpTxt"></span></div>
-    <div class="bar st"><i id="stFill"></i></div>
     <div id="quest"></div>
     <div id="buff"></div>
     <div id="camMode">카메라: 자동 (F5: 마우스 조작)</div>
   </div>
-  <div id="tr" class="g"><button id="btnMap">지도 (M)</button><button id="btnCalm">멀미 완화: 켜짐</button><button id="btnClass">직업 바꾸기</button><button id="btnSnd">소리 끄기</button></div>
+  <div id="tr" class="g"><button id="btnMap">지도 (M)</button><button id="btnHelp">조작법 (H)</button><button id="btnCalm">멀미 완화: 켜짐</button><button id="btnClass">직업 바꾸기</button><button id="btnSnd">소리 끄기</button></div>
   <canvas id="mini" width="300" height="300"></canvas>
-  <div id="bossBar" hidden><div id="bossName">하늘의 폭군 드래곤</div><div class="bar"><i id="bossFill"></i></div></div>
+  <div id="bossBar" hidden><div id="bossName">하늘의 폭군 드래곤</div><div class="bar"><i id="bossFill"></i></div><b id="bossX"></b></div>
+  <div id="dim"></div><div id="flash"></div><div id="fedge"></div><div id="sline"></div><div id="wg"><div id="wgb"><i></i><i></i><div id="wgf" class="s0"></div></div><span>차징</span></div>
   <div id="toast"></div>
-  <div id="help" class="g"><b>방향키</b> 이동 · <b>Z</b> 공격 · <b>X</b> 윈드밀 · <b>A·S·D·Q·W</b> 스킬 · <b>Shift</b>+방향키 달리기 · <b>Space</b> 점프 · <b>C</b> 구르기<br><b>Tab/R</b> 락온 · <b>F</b> 상호작용 · <b>M</b> 지도 · <b>F5</b> 카메라 자동 → 마우스 → 쿼터뷰</div>
-  <div id="btns" class="g"><button id="bAtk">공격</button><button id="bSkill">스킬</button><button id="bS1">와일</button><button id="bS2">라이</button><button id="bS3">벚꽃</button><button id="bS4">추격</button><button id="bS5">검우</button><button id="bJump">점프</button><button id="bRoll">구르기</button><button id="bLock">락온</button></div>
+  <div id="mhp"></div>
+  <div id="pt"><canvas id="ptc" width="128" height="128"></canvas><b id="ptn">전사 Lv.99</b></div>
+  <div id="npcTip" hidden><b>F</b>대화</div>
+  <div id="dlg" hidden><div class="pt" id="dlgPt"></div><div class="bx"><div class="nm" id="dlgNm"></div><div class="tx" id="dlgTx"></div><div class="nx" id="dlgNx">▼ F · 클릭</div></div></div>
+  <div id="help"><b class="ht">조작법</b>
+    <div><i>이동</i><span><kbd>방향키</kbd></span></div>
+    <div><i>달리기</i><span><kbd>방향키</kbd> 두 번 누르고 유지 · <kbd>Shift</kbd>+방향키</span></div>
+    <div><i>공격</i><span><kbd>Z</kbd> (꾹 누르면 연속)</span></div>
+    <div><i>스킬</i><span><kbd>X</kbd> 윈드밀 · <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>Q</kbd><kbd>W</kbd></span></div>
+    <div><i>점프·구르기</i><span><kbd>Space</kbd> · <kbd>C</kbd></span></div>
+    <div><i>락온</i><span><kbd>R</kbd> / <kbd>Tab</kbd></span></div>
+    <div><i>기타</i><span><kbd>F</kbd> 상호작용 · <kbd>M</kbd> 지도 · <kbd>F5</kbd> 카메라 · <kbd>H</kbd> 이 창</span></div></div>
+  <div id="dock"><svg id="orb" viewBox="0 0 120 134" width="118" height="130" aria-label="체력과 스태미나">
+<defs><clipPath id="hexc"><polygon points="60,6 112,36 112,98 60,128 8,98 8,36"/></clipPath>
+<linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8f84"/><stop offset="1" stop-color="#d12f3f"/></linearGradient>
+<linearGradient id="gBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fe0ff"/><stop offset="1" stop-color="#2f6fe0"/></linearGradient>
+<linearGradient id="gRim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1c2"/><stop offset=".5" stop-color="#d9a441"/><stop offset="1" stop-color="#8a5a1f"/></linearGradient>
+<linearGradient id="gGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<polygon points="60,2 116,34 116,100 60,132 4,100 4,34" fill="#120e26" stroke="url(#gRim)" stroke-width="5" stroke-linejoin="round"/>
+<g clip-path="url(#hexc)"><rect x="0" y="0" width="120" height="134" fill="#1d1738"/>
+<rect id="hpFill" x="0" y="6" width="60" height="122" fill="url(#gRed)"/><rect id="stFill" x="60" y="6" width="60" height="122" fill="url(#gBlue)"/>
+<rect x="0" y="6" width="120" height="50" fill="url(#gGloss)"/><rect x="58.5" y="0" width="3" height="134" fill="#120e26"/></g>
+<polygon points="60,6 112,36 112,98 60,128 8,98 8,36" fill="none" stroke="#120e26" stroke-width="2" stroke-opacity=".7"/>
+<text x="34" y="60" class="ot" font-size="14">HP</text><text id="hpTxt" x="34" y="82" class="ov">120</text>
+<text x="86" y="60" class="ot" font-size="14">SP</text><text id="stTxt" x="86" y="82" class="ov">100</text></svg><div id="sk1"><button id="bAtk"></button><button id="bSkill"></button><button id="bS1" class="sp"></button><button id="bS2"></button><button id="bS3"></button><button id="bS4"></button><button id="bS5"></button><button id="bRoll" class="sp"></button><button id="bJump"></button><button id="bLock"></button><button id="bP1" class="sp"></button><button id="bP2"></button><button id="bP3"></button></div></div>
 </div>
 <div id="start"><div class="card g">
   <h1>꼬마 행성 모험</h1>
-  <p>작은 행성 위의 마을에서 출발해 필드 몬스터를 잡고, 보스방의 드래곤을 쓰러뜨리는 3D 액션 게임이에요.</p>
+  <p>작은 행성 위의 마을에서 출발해 필드 몬스터를 잡고, 보스 스테이지의 드래곤을 쓰러뜨리는 3D 액션 게임이에요.</p>
   <div class="pick"><button id="pWarrior" class="on"><b>전사</b><small>검과 방패로 가까이서 싸워요. 스킬은 3초 동안 회전베기(윈드밀).</small></button><button id="pMage"><b>마법사</b><small>마법 구슬로 멀리서 싸워요. 스킬은 메테오.</small></button></div>
   <div class="keys"><b>방향키</b><span>이동 (카메라는 자동으로 따라와요)</span><b>Z</b><span>공격</span><b>X</b><span>스킬</span><b>Space</b><span>점프 (보스 파동 피하기)</span><b>C</b><span>구르기 (구르는 동안 무적)</span><b>Tab · R</b><span>가까운 적 락온</span><b>F5</b><span>카메라 전환 (자동 → 마우스 → 쿼터뷰 → 자동)</span></div>
   <div id="load"><i></i></div>
   <button id="go" disabled>불러오는 중…</button>
-  <div class="cred">캐릭터·무기 KayKit Adventurers (Kay Lousberg, CC0) · 몬스터·나무·풀·마을 건물·소품 Quaternius MegaKits &amp; Ultimate Monsters (CC0) · 보스방 Kenney (CC0) · 우물 Babylon.js Village Pack (CC BY 4.0) · 모션 Quaternius Universal Animation Library (CC0) · 로봇 Tomás Laulhé (CC0)</div>
+  <div class="cred">캐릭터·무기 KayKit Adventurers (Kay Lousberg, CC0) · 몬스터·나무·풀·마을 건물·소품 Quaternius MegaKits &amp; Ultimate Monsters (CC0) · 보스 스테이지 Kenney (CC0) · 우물 Babylon.js Village Pack (CC BY 4.0) · 모션 Quaternius Universal Animation Library (CC0) · 로봇 Tomás Laulhé (CC0)</div>
 </div></div>
 <div id="over" hidden><h2 id="overT"></h2><p id="overP"></p></div>
 <div id="tip" hidden></div>
