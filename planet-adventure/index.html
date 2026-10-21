@@ -339,6 +339,23 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 #start .logo span::after{-webkit-text-stroke:10px #fff}
 #start .logo .globe{position:absolute;z-index:-2;width:min(250px,62vw);left:60%;top:46%;transform:translate(-50%,-50%);filter:drop-shadow(0 8px 10px rgba(30,50,110,.3))}
 #start .logo{padding-top:16px}
+
+/* ---- 연보라 + 남색 ---- */
+#start .logo .l1{background:linear-gradient(180deg,#faf5ff 0%,#e3d4ff 32%,#bba4f6 64%,#8d78e4 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l2{background:linear-gradient(180deg,#8f9cf0 0%,#5560d0 36%,#323aa8 68%,#1f2680 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l1::before{color:#43328a;-webkit-text-stroke:15px #43328a}
+#start .logo .l2::before{color:#121652;-webkit-text-stroke:15px #121652}
+#start .logo .globe{filter:drop-shadow(0 8px 10px rgba(40,40,120,.3))}
+
+#start .logo .l1{background:linear-gradient(180deg,#c3a8ff 0%,#a38af2 38%,#7f66e0 72%,#5e46c4 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .globe{filter:drop-shadow(0 8px 10px rgba(80,20,40,.35))}
+
+/* ---- 최종: 라일락 + 마젠타 / 네이비 행성 ---- */
+#start .logo .l1{background:linear-gradient(180deg,#e4d0ff 0%,#c4a0ff 35%,#a070f0 68%,#7a48d0 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l2{background:linear-gradient(180deg,#f08ad0 0%,#d44ab0 35%,#a02a8c 68%,#6e1664 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l1::before{color:#44208a;-webkit-text-stroke:15px #44208a}
+#start .logo .l2::before{color:#40083c;-webkit-text-stroke:15px #40083c}
+#start .logo .globe{filter:drop-shadow(0 8px 10px rgba(10,15,70,.35))}
 </style>
 <div id="stage"></div>
 <div id="floaters"></div>
@@ -396,7 +413,7 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 <text x="86" y="60" class="ot" font-size="14">SP</text><text id="stTxt" x="86" y="82" class="ov">100</text></svg><div id="sk1"><button id="bAtk"></button><button id="bSkill"></button><button id="bS1" class="sp"></button><button id="bS2"></button><button id="bS3"></button><button id="bS4"></button><button id="bS5"></button><button id="bRoll" class="sp"></button><button id="bJump"></button><button id="bLock"></button><button id="bP1" class="sp"></button><button id="bP2"></button></div><i class="es"></i><i class="es"></i><i class="es"></i><i class="es"></i></div>
 </div>
 <div id="start"><div class="card g">
-  <div class="logo"><svg class="globe" viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="gb" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#8fd4ff"/><stop offset=".6" stop-color="#3f93ec"/><stop offset="1" stop-color="#2a63c4"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="92"/></clipPath></defs><circle cx="100" cy="100" r="92" fill="url(#gb)"/><g clip-path="url(#gc)" fill="#6fcf5a"><path d="M30 70c18-22 46-20 58-6 8 10-4 20-2 32 2 12-14 18-24 10-10-8-8-18-18-22-8-4-22 0-14-14z"/><path d="M110 120c14-10 36-8 50 4 14 12 6 34-10 40-14 6-26-2-34-12-6-8-12-22-6-32z"/><path d="M120 34c10-6 26-4 32 6 4 8-8 14-16 12-10-2-22-10-16-18z"/></g><ellipse cx="68" cy="52" rx="34" ry="16" fill="#fff" opacity=".35" transform="rotate(-28 68 52)"/><circle cx="100" cy="100" r="92" fill="none" stroke="#2a4f9c" stroke-width="3"/></svg><span class="l1" data-t="플래닛">플래닛</span><span class="l2" data-t="어드벤처">어드벤처</span></div>
+  <div class="logo"><svg class="globe" viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="gb" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#8aa0ff"/><stop offset=".5" stop-color="#3a50c8"/><stop offset="1" stop-color="#141c70"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="92"/></clipPath></defs><circle cx="100" cy="100" r="92" fill="url(#gb)"/><g clip-path="url(#gc)" fill="#c8d4ff" opacity=".8"><path d="M30 70c18-22 46-20 58-6 8 10-4 20-2 32 2 12-14 18-24 10-10-8-8-18-18-22-8-4-22 0-14-14z"/><path d="M110 120c14-10 36-8 50 4 14 12 6 34-10 40-14 6-26-2-34-12-6-8-12-22-6-32z"/><path d="M120 34c10-6 26-4 32 6 4 8-8 14-16 12-10-2-22-10-16-18z"/></g><ellipse cx="68" cy="52" rx="34" ry="16" fill="#fff" opacity=".35" transform="rotate(-28 68 52)"/><circle cx="100" cy="100" r="92" fill="none" stroke="#080c3c" stroke-width="3"/></svg><span class="l1" data-t="플래닛">플래닛</span><span class="l2" data-t="어드벤처">어드벤처</span></div>
   <div class="pick"><button id="pWarrior" class="on"><b>⚔ 전사</b><small>검으로 가까이서 싸워요</small></button><button id="pMage"><b>✦ 마법사</b><small>마법으로 멀리서 싸워요</small></button></div>
   <div id="load"><i></i></div>
   <button id="go" disabled>불러오는 중…</button>
