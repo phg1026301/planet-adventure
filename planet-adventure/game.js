@@ -936,6 +936,7 @@ requestAnimationFrame(frame);}
 function pickCls(c){$('pWarrior').classList.toggle('on',c==='warrior');$('pMage').classList.toggle('on',c==='mage');$('go').disabled=true;$('go').textContent='불러오는 중…';
 setClass(c).then(()=>{if(S.world&&pl.ref)S.world.add(pl.ref.root);$('go').disabled=false;$('go').textContent='모험 시작';});}
 $('pWarrior').onclick=()=>pickCls('warrior');$('pMage').onclick=()=>pickCls('mage');
+addEventListener('keydown',e=>{if(!S.running&&!$('start').hidden&&!$('go').disabled&&(e.code==='Enter'||e.code==='Space')){e.preventDefault();$('go').click();}});
 $('go').onclick=()=>{$('start').hidden=true;$('hud').hidden=false;S.running=true;S.snap=true;fitDock();sfxInit();sfx('cast');toast('마을에서 출발!',1500);pl.hp=pl.mhp;pl.st=pl.mst;updateQuest();};
 (async function init(){const bar=$('load').firstChild;const total=3;let n=0;const tick=()=>{n++;bar.style.width=Math.min(100,n/total*100)+'%';};
 await buildZone('village');tick();await setClass('warrior');tick();if(S.world)S.world.add(pl.ref.root);S.snap=true;tick();

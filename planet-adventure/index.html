@@ -3,6 +3,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Do+Hyeon&family=Noto+Sans+KR:wght@500;700;900&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
 <style>
 /* 레이아웃: 화면 전체가 3D 무대, 위에 HUD가 얹힌다. 팔레트는 밤하늘 보라 + 크림 + 산호색 */
 :root{--night:#241f45;--night2:#17132e;--ink:#fff6df;--ink2:#cfc6ee;--coral:#ff7a6b;--sky:#6fd0ff;--gold:#ffd45a;--panel:rgba(30,25,60,.74);--line:rgba(255,246,223,.22);
@@ -262,6 +263,82 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 #itTip{position:fixed;z-index:200;pointer-events:none;width:230px;padding:8px 10px;border-radius:9px;background:rgba(10,12,28,.96);border:1px solid #e8c36a;display:flex;flex-direction:column;gap:3px;font-size:12px;color:#ddd}
 #itTip[hidden]{display:none}#itTip b{font:400 16px var(--display);color:#ffe38a}#itTip i{font-style:normal;color:#9fe3b0}#itTip em{font-style:normal;color:#8fd0ff}
 #tr{grid-template-columns:repeat(4,42px)!important;width:176px!important}
+
+/* ---- 시작 화면 (심플) ---- */
+#start{background:radial-gradient(ellipse at 50% 38%,#fff7e0 0%,#cfe6ff 55%,#8fb4f0 100%)!important}
+#start .card{width:min(520px,100%);align-items:center;gap:18px;position:relative}
+.logo{position:relative;display:flex;flex-direction:column;align-items:center;line-height:1.1;margin-bottom:10px}
+.logo span{font-family:var(--display);font-weight:400;-webkit-text-stroke:10px #fff;paint-order:stroke fill;text-shadow:0 5px 0 rgba(120,90,60,.35);letter-spacing:2px}
+.logo .l1{font-size:clamp(64px,16vw,104px);background:linear-gradient(180deg,#ff6b9a,#ff9a55 90%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 0 #fff)}
+.logo .l2{font-size:clamp(52px,13vw,84px);margin-top:8px;background:linear-gradient(180deg,#4f8cff,#5fd0f5);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo .l1,.logo .l2{-webkit-text-stroke:0;text-shadow:none;filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 6px 4px rgba(90,70,40,.35))}
+.logo .st{position:absolute;font-style:normal;color:#ffc24d;text-shadow:0 0 0 #fff,0 3px 0 rgba(120,90,60,.3);-webkit-text-stroke:3px #fff;paint-order:stroke fill}
+.logo .s1{font-size:46px;right:-6px;top:-18px;transform:rotate(14deg)}
+.logo .s2{font-size:30px;left:-4px;bottom:10px;transform:rotate(-12deg)}
+#start .pick{width:100%;max-width:420px}
+#start .pick button{align-items:center;text-align:center;background:rgba(255,255,255,.7);border:2px solid rgba(60,70,120,.25);color:#2b3358}
+#start .pick button b{font-size:22px;color:#2b3358}
+#start .pick button small{color:#55608a}
+#start .pick button.on{border-color:#ff9a3c;background:#fff4dc;box-shadow:0 3px 0 #ffb64a}
+#start #load{width:100%;max-width:420px;background:rgba(255,255,255,.55)}
+#start #go{background:transparent!important;color:#fff!important;font-size:clamp(30px,7vw,44px);letter-spacing:.18em;color:#fff;-webkit-text-stroke:7px #3f5fb8;paint-order:stroke fill;text-shadow:0 4px 0 #2d4590;padding:6px 10px;border:0}
+#start #go:disabled{font-size:24px;letter-spacing:.08em;-webkit-text-stroke:5px #3f5fb8}
+#start #go:not(:disabled){animation:gopulse 1.4s ease-in-out infinite}
+@keyframes gopulse{50%{opacity:.7}}
+.hint{font-size:13px;color:#3d4a7a;text-align:center;font-weight:500}
+#start .cred{position:absolute;left:0;right:0;bottom:-70px;font-size:10px;line-height:1.5;color:rgba(40,50,90,.6);text-align:center}
+@media (max-height:620px){#start .cred{display:none}}
+
+/* ---- 시작 화면: 둥근 글꼴 ---- */
+#start,#start button,#start .logo span,#start .hint{font-family:'Jua','Do Hyeon','Noto Sans KR',sans-serif!important}
+#start .logo span{font-weight:400;letter-spacing:0}
+#start .logo .l1{font-size:clamp(70px,17vw,116px);background:linear-gradient(180deg,#fff25a 0%,#ffc21a 48%,#ff8a1f 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(4px 0 0 #7a3b12) drop-shadow(-4px 0 0 #7a3b12) drop-shadow(0 4px 0 #7a3b12) drop-shadow(0 -4px 0 #7a3b12) drop-shadow(0 8px 0 #7a3b12) drop-shadow(0 12px 6px rgba(40,30,10,.35))}
+#start .logo .l2{font-size:clamp(56px,14vw,92px);background:linear-gradient(180deg,#d8ff6a 0%,#7fe03a 50%,#3fae2a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(4px 0 0 #1f5a14) drop-shadow(-4px 0 0 #1f5a14) drop-shadow(0 4px 0 #1f5a14) drop-shadow(0 -4px 0 #1f5a14) drop-shadow(0 8px 0 #1f5a14) drop-shadow(0 12px 6px rgba(20,40,10,.35))}
+#start .pick button b{font-size:24px;font-weight:400}
+#start #go{font-size:clamp(34px,8vw,50px);letter-spacing:.12em;-webkit-text-stroke:0;color:#fff;text-shadow:3px 0 0 #3f5fb8,-3px 0 0 #3f5fb8,0 3px 0 #3f5fb8,0 -3px 0 #3f5fb8,0 6px 0 #2d4590,0 9px 8px rgba(30,40,100,.4);paint-order:normal}
+#start #go:disabled{font-size:26px;letter-spacing:.06em;-webkit-text-stroke:0;animation:none}
+#start #go:not(:disabled){animation:gopulse 2.6s ease-in-out infinite}
+@keyframes gopulse{0%,100%{opacity:0}45%,55%{opacity:1}}
+
+/* ---- 시작 화면: 매끄러운 외곽선 (필터 대신 stroke 레이어) ---- */
+#start .logo span{position:relative;display:block;filter:none!important;-webkit-text-stroke:0!important;text-shadow:none!important}
+#start .logo span::before{content:attr(data-t);position:absolute;left:0;top:0;z-index:-1;-webkit-text-stroke:var(--sw,16px) var(--sc);color:var(--sc);text-shadow:0 7px 0 var(--sd),0 12px 10px rgba(30,25,10,.3);-webkit-background-clip:border-box;background:none}
+#start .logo .l1{--sc:#7a3b12;--sd:#7a3b12;--sw:16px;background:linear-gradient(180deg,#fff25a 0%,#ffc21a 50%,#ff8a1f 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l2{--sc:#1f5a14;--sd:#1f5a14;--sw:16px;background:linear-gradient(180deg,#d8ff6a 0%,#7fe03a 50%,#3fae2a 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo{isolation:isolate}
+#start #go{-webkit-text-stroke:9px #3f5fb8!important;paint-order:stroke fill!important;text-shadow:none!important;filter:drop-shadow(0 5px 0 #2d4590) drop-shadow(0 9px 6px rgba(30,40,100,.35))}
+#start #go:disabled{-webkit-text-stroke:7px #3f5fb8!important}
+
+/* ---- 로고 입체감: 두꺼운 압출 + 윗면 광택 ---- */
+#start .logo span::before{-webkit-text-stroke:var(--sw,18px) var(--sc);text-shadow:0 1px 0 var(--sd),0 2px 0 var(--sd),0 3px 0 var(--sd),0 4px 0 var(--sd),0 5px 0 var(--sd),0 6px 0 var(--sd),0 7px 0 var(--sd),0 8px 0 var(--sd),0 9px 0 var(--sd),0 10px 0 var(--sd),0 11px 0 var(--sd),0 12px 0 var(--sd),0 20px 14px rgba(30,25,10,.35)}
+#start .logo .l1{--sc:#8a4310;--sd:#5a2a08;--sw:18px;background:linear-gradient(180deg,#fffbb0 0%,#ffe94a 30%,#ffb41c 62%,#ff7a14 100%);-webkit-background-clip:text;background-clip:text}
+#start .logo .l2{--sc:#226a16;--sd:#143f0c;--sw:18px;background:linear-gradient(180deg,#f0ffb0 0%,#a6ee48 32%,#4fc22c 64%,#2c8c1c 100%);-webkit-background-clip:text;background-clip:text}
+#start .logo span::after{content:attr(data-t);position:absolute;left:0;top:0;color:transparent;background:radial-gradient(ellipse 60% 22% at 30% 18%,rgba(255,255,255,.95),rgba(255,255,255,0) 100%),linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 42%);-webkit-background-clip:text;background-clip:text;pointer-events:none}
+
+/* ---- 로고: 파스텔 + 두꺼운 흰 테두리 (눈 편한 버전) ---- */
+#start{background:radial-gradient(ellipse at 50% 42%,#ffffff 0%,#f4f4f6 38%,#c9ccd6 100%)!important}
+#start .logo span::before{content:attr(data-t);position:absolute;left:0;top:0;z-index:-1;color:#7a5a46;-webkit-text-stroke:22px #7a5a46;text-shadow:0 8px 14px rgba(60,50,60,.22)}
+#start .logo span::after{content:attr(data-t);position:absolute;left:0;top:0;z-index:-1;color:#fff;-webkit-text-stroke:17px #fff;background:none;text-shadow:none;-webkit-background-clip:border-box}
+#start .logo .l1{background:radial-gradient(rgba(255,255,255,.3) 1.3px,transparent 1.8px) 0 0/6px 6px,linear-gradient(100deg,#e5567f 0%,#ec7f4e 52%,#5b92e6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l2{background:radial-gradient(rgba(255,255,255,.3) 1.3px,transparent 1.8px) 0 0/6px 6px,linear-gradient(100deg,#ef9a43 0%,#5b92e6 55%,#6fcaee 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .st{color:#f0b34a;-webkit-text-stroke:5px #fff;text-shadow:0 0 0 #7a5a46}
+#start #go{-webkit-text-stroke:7px #6b86c9!important;filter:drop-shadow(0 3px 5px rgba(60,70,120,.3))}
+#start .hint{color:#555d78}
+#start .pick button{background:#fff;border-color:#d6d9e4}
+#start .pick button.on{background:#fff4e2;border-color:#f0a34a;box-shadow:0 3px 0 #f6c177}
+#start .cred{color:rgba(60,64,90,.55)}
+
+#start .logo .l1{background:radial-gradient(rgba(255,255,255,.24) 1.3px,transparent 1.8px) 0 0/6px 6px,linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,.3) 100%),linear-gradient(90deg,#e5567f 0 35%,#ee8240 35% 67%,#5b92e6 67%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l2{background:radial-gradient(rgba(255,255,255,.24) 1.3px,transparent 1.8px) 0 0/6px 6px,linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 35%,rgba(255,255,255,.3) 100%),linear-gradient(90deg,#ef9a43 0 27%,#5b92e6 27% 64%,#4f9fe8 64%);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---- 로고 수정: 이전 색/그라데이션, 점무늬 없음, 얇은 흰 테두리, 지구본 ---- */
+#start .logo .l1{background:linear-gradient(180deg,#fffbb0 0%,#ffe94a 30%,#ffb41c 62%,#ff7a14 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l2{background:linear-gradient(180deg,#f0ffb0 0%,#a6ee48 32%,#4fc22c 64%,#2c8c1c 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#start .logo .l1::before{color:#8a4310;-webkit-text-stroke:15px #8a4310}
+#start .logo .l2::before{color:#226a16;-webkit-text-stroke:15px #226a16}
+#start .logo span::after{-webkit-text-stroke:10px #fff}
+#start .logo .globe{position:absolute;z-index:-2;width:min(250px,62vw);left:60%;top:46%;transform:translate(-50%,-50%);filter:drop-shadow(0 8px 10px rgba(30,50,110,.3))}
+#start .logo{padding-top:16px}
 </style>
 <div id="stage"></div>
 <div id="floaters"></div>
@@ -319,12 +396,11 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 <text x="86" y="60" class="ot" font-size="14">SP</text><text id="stTxt" x="86" y="82" class="ov">100</text></svg><div id="sk1"><button id="bAtk"></button><button id="bSkill"></button><button id="bS1" class="sp"></button><button id="bS2"></button><button id="bS3"></button><button id="bS4"></button><button id="bS5"></button><button id="bRoll" class="sp"></button><button id="bJump"></button><button id="bLock"></button><button id="bP1" class="sp"></button><button id="bP2"></button></div><i class="es"></i><i class="es"></i><i class="es"></i><i class="es"></i></div>
 </div>
 <div id="start"><div class="card g">
-  <h1>플래닛 어드벤처</h1>
-  <p>작은 행성 위의 마을에서 출발해 필드 몬스터를 잡고, 보스 스테이지의 드래곤을 쓰러뜨리는 3D 액션 게임이에요.</p>
-  <div class="pick"><button id="pWarrior" class="on"><b>전사</b><small>검과 방패로 가까이서 싸워요. 스킬은 3초 동안 회전베기(윈드밀).</small></button><button id="pMage"><b>마법사</b><small>마법 구슬로 멀리서 싸워요. 스킬은 메테오.</small></button></div>
-  <div class="keys"><b>방향키</b><span>이동 (카메라는 자동으로 따라와요)</span><b>Z</b><span>공격</span><b>X</b><span>스킬</span><b>Space</b><span>점프 (보스 파동 피하기)</span><b>C</b><span>구르기 (구르는 동안 무적)</span><b>Tab · R</b><span>가까운 적 락온</span><b>F5</b><span>카메라 전환 (자동 → 마우스 → 쿼터뷰 → 자동)</span></div>
+  <div class="logo"><svg class="globe" viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="gb" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#8fd4ff"/><stop offset=".6" stop-color="#3f93ec"/><stop offset="1" stop-color="#2a63c4"/></radialGradient><clipPath id="gc"><circle cx="100" cy="100" r="92"/></clipPath></defs><circle cx="100" cy="100" r="92" fill="url(#gb)"/><g clip-path="url(#gc)" fill="#6fcf5a"><path d="M30 70c18-22 46-20 58-6 8 10-4 20-2 32 2 12-14 18-24 10-10-8-8-18-18-22-8-4-22 0-14-14z"/><path d="M110 120c14-10 36-8 50 4 14 12 6 34-10 40-14 6-26-2-34-12-6-8-12-22-6-32z"/><path d="M120 34c10-6 26-4 32 6 4 8-8 14-16 12-10-2-22-10-16-18z"/></g><ellipse cx="68" cy="52" rx="34" ry="16" fill="#fff" opacity=".35" transform="rotate(-28 68 52)"/><circle cx="100" cy="100" r="92" fill="none" stroke="#2a4f9c" stroke-width="3"/></svg><span class="l1" data-t="플래닛">플래닛</span><span class="l2" data-t="어드벤처">어드벤처</span></div>
+  <div class="pick"><button id="pWarrior" class="on"><b>⚔ 전사</b><small>검으로 가까이서 싸워요</small></button><button id="pMage"><b>✦ 마법사</b><small>마법으로 멀리서 싸워요</small></button></div>
   <div id="load"><i></i></div>
   <button id="go" disabled>불러오는 중…</button>
+  <div class="hint">방향키 이동 · Z 공격 · X 스킬 · Space 점프 · C 구르기 · I 인벤토리</div>
   <div class="cred">캐릭터·무기 KayKit Adventurers (Kay Lousberg, CC0) · 몬스터·나무·풀·마을 건물·소품 Quaternius MegaKits &amp; Ultimate Monsters (CC0) · 보스 스테이지 Kenney (CC0) · 우물 Babylon.js Village Pack (CC BY 4.0) · 모션 Quaternius Universal Animation Library (CC0) · 로봇 Tomás Laulhé (CC0)</div>
 </div></div>
 <div id="over" hidden><h2 id="overT"></h2><p id="overP"></p></div>
