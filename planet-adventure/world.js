@@ -93,11 +93,11 @@ else if(z==='field'){const px=zz=>2.6*Math.sin(zz*0.22+1),pth=(x,zz)=>zz<14&&zz>
 layer(1.6,['#a3cf5c','#94c24f'],'#78a73e',all,0,1,0);
 dots(260,['#ffffff','#ff9ec4','#ffe27a','#b5a0ff'],0.12,(x,zz)=>!pth(x,zz));
 layer(0.9,['#dcb67e','#cfa76c','#e3c18c'],'#a58050',pth,1,0,1);}
-else{const cz=-8,arena=(x,zz)=>Math.hypot(x,zz-cz)<14.6;
+else{const cz=-8,arena=(x,zz)=>Math.hypot(x,zz-cz)<20.6;
 layer(1.6,['#3a2f63','#32295a'],'#221a40',all,0,1,0);
 layer(1.6,['#5a4a92','#4e3f84'],'#2d2352',arena,0,1,1);
 g.save();g.shadowColor='#a58bff';g.shadowBlur=26;g.strokeStyle='#d2c2ff';g.lineWidth=0.2*FK;const circ=(r)=>{g.beginPath();g.arc(X(0),X(cz),r*FK,0,7);g.stroke();};
-circ(14.2);circ(7.8);circ(1.2);const vt=k=>[X(Math.sin(k*Math.PI/3)*7.8),X(cz-Math.cos(k*Math.PI/3)*7.8)];
+circ(20);circ(11);circ(1.6);const vt=k=>[X(Math.sin(k*Math.PI/3)*11),X(cz-Math.cos(k*Math.PI/3)*11)];
 [[0,2,4],[1,3,5]].forEach(t=>{g.beginPath();t.forEach((k,n)=>{const p=vt(k);n?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]);});g.closePath();g.stroke();});
 for(let k=0;k<6;k++){const p=vt(k);g.beginPath();g.arc(p[0],p[1],0.9*FK,0,7);g.stroke();}g.restore();}
 return cv;}
@@ -121,11 +121,11 @@ village:{n:'마을',sky:0xbfe3f2,hemi:[0xffffff,0x7a9a6a,0.85],sun:1.05,center:[
  portals:[{id:'toField',th:0.3,ph:0,to:'field',label:'필드로 가는 문'}]},
 field:{n:'필드',sky:0xffe0c0,hemi:[0xfff2dd,0x8a9a5a,0.85],sun:1.1,center:[0.45,PI],L:22,
  items:[['tree1',4.6,0.42,PI-0.75,0],['tree2',5.2,0.5,PI+0.62,1],['autumn',4.6,0.36,PI+1.1,2],['pine',5.4,0.6,PI-0.25,0],['birch',5.2,0.55,PI+0.2,1],['willow',4.8,0.72,PI-1.2,2],['tree3',5,0.8,PI+0.9,0],['autumn',4.4,0.68,PI-0.55,0.5],['pine',5,0.85,PI+0.45,1.5],
- ['bush',0.7,0.2,PI-0.95,0],['berry',0.7,0.34,PI+0.95,1],['bush',0.8,0.42,PI-0.45,2],['rockMoss',1.0,0.28,PI-0.35,0],['rock',0.8,0.2,PI+0.75,1],['stump',0.7,0.31,PI+0.28,0],['log',0.7,0.42,PI-0.15,1.2],['plant',0.5,0.1,PI+0.35,0]],
- scatter:[['flowers',0.55,40,0.05,0.7],['grass',0.45,45,0.04,0.8],['fern',0.7,16,0.05,0.5],['mush',0.4,12,0.05,0.5],['flowers2',0.6,14,0.05,0.5],['clover',0.3,16,0.05,0.5]],ring:['rock','bush','pine','tree1','pine2','tree2'],
+ ['plant',0.5,0.1,PI+0.35,0]],
+ scatter:[['flowers',0.55,12,0.05,0.7],['grass',0.45,12,0.04,0.8],['fern',0.7,4,0.05,0.5],['flowers2',0.6,4,0.05,0.5],['clover',0.3,4,0.05,0.5]],ring:['pine','tree1','pine2','tree2'],ringGap:4.6,
  spawns:[['alien',1.226,2.962],['alien',1.007,-2.494],['alien',0.600,2.366],['alien',0.645,-2.288],['alien',1.142,2.608],['alien',0.758,2.942],['alien',1.214,-2.900],['alien',0.980,2.261]],
  portals:[{id:'toVillage',th:0.3,ph:0,to:'village',label:'마을로 돌아가는 문'},{id:'toBoss',th:0.97,ph:PI,to:'boss',label:'보스 스테이지 문',needKills:1}]},
-boss:{n:'보스 스테이지',sky:0x2b2650,hemi:[0x9a8aff,0x2a2040,0.8],sun:0.6,night:1,center:[0.31,PI],L:14.2,
+boss:{n:'보스 스테이지',sky:0x2b2650,hemi:[0x9a8aff,0x2a2040,0.8],sun:0.6,night:1,center:[0.31,PI],L:20,
  items:[],scatter:[],ring:[],portals:[]}};
 (function(){const Z=ZONES.village,SQ=0.70710678,wxz=(xl,zl)=>[-SQ*(xl+zl),SQ*(xl-zl)],tp=(xl,zl)=>{const p=wxz(xl,zl);return [Math.hypot(p[0],p[1])/26,Math.atan2(p[0],p[1])];},it=[];
 const cc=tp(0,20);
@@ -153,9 +153,9 @@ Z.portals=[(()=>{const p=tp(0,-9);return {id:'toField',th:p[0],ph:p[1],to:'field
 (function(){const it=ZONES.boss.items,cz=-ZONES.boss.center[0]*26,toP=(x,z)=>[Math.hypot(x,z)/26,Math.atan2(x,z)];
 /* 기둥과 조각상은 전투 구역(반지름 14) 바깥 멀리에 둔다. 카메라 시야를 가리지 않게 */
 const put=(k,h,rad,a,face)=>{const x=Math.sin(a)*rad,z=cz+Math.cos(a)*rad,p=toP(x,z);it.push([k,h,p[0],p[1],face?Math.atan2(-(cz-z),-x):0]);};
-for(let i=0;i<12;i++){const a=i*Math.PI/6;put(i%4===1?'columnD':'column',i%4===1?3.6:5.4,24,a,0);put('banner',2.8,23,a+Math.PI/12,1);}
-for(let k=0;k<4;k++)put('statue',3.6,21.5,Math.PI/4+k*Math.PI/2,1);
-for(let k=0;k<5;k++)put('bricks',0.9,19.5,0.4+k*1.3,0);})();
+for(let i=0;i<12;i++){const a=i*Math.PI/6;put(i%4===1?'columnD':'column',i%4===1?3.6:5.4,31,a,0);put('banner',2.8,30,a+Math.PI/12,1);}
+for(let k=0;k<4;k++)put('statue',3.6,28,Math.PI/4+k*Math.PI/2,1);
+for(let k=0;k<5;k++)put('bricks',0.9,25.5,0.4+k*1.3,0);})();
 
 function floorXY(n){const sn=Math.hypot(n.x,n.z),th=Math.atan2(sn,n.y),s=R*th;return sn<1e-14?[0,0]:[s*n.x/sn,s*n.z/sn];}
 function onPath(zone,n){const [x,z]=floorXY(n);

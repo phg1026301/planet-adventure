@@ -176,6 +176,8 @@ button:disabled{opacity:.45;cursor:default}
 #mapPanel{border-radius:10px;overflow:hidden;background:#171a2d;border:2px solid #e8c36a;box-shadow:0 3px 10px rgba(0,0,0,.5);pointer-events:auto}
 #mapPanel .mh{height:32px;display:flex;align-items:center;gap:8px;padding:0 12px;background:linear-gradient(#4a4f7a,#2b2f4a);border-bottom:2px solid #e8c36a}
 #mapPanel .mh b{font:18px var(--display);color:#ffe27a;font-weight:400}
+#mapPanel .mh #mhz{margin-left:auto;font:600 11px var(--body);color:#ffe9a8;opacity:.9;cursor:pointer;white-space:nowrap;text-shadow:0 1px 2px #000}
+#tr #btnMap{display:none}
 #mapPanel .mh em{font-style:normal;font-size:11px;background:#3a8a55;border-radius:6px;padding:1px 7px;color:#fff}
 #mini{position:static;display:block;width:100%;height:auto;border-radius:0;box-shadow:none;aspect-ratio:300/270;cursor:pointer}
 #quest{padding:0;border:2px solid #e8c36a;border-left-width:2px;border-radius:10px;overflow:hidden;background:linear-gradient(#2b2f4a,#171a2d);font-size:13px;font-weight:400;line-height:1.45;color:#eef;padding:0 12px 10px;box-shadow:0 3px 10px rgba(0,0,0,.5);text-shadow:none}
@@ -188,9 +190,10 @@ button:disabled{opacity:.45;cursor:default}
 #tr #btnBgm.off::before{content:'🎵';opacity:.35}
 #tr #btnBgm.off::after{text-decoration:line-through}
 #tr #btnCalm{display:none}
+#tr #btnShake.off::before{content:'📳';opacity:.35}#tr #btnShake.off::after{text-decoration:line-through}
 #expBar{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(#10132a,#05060f);border-top:2px solid #e8c36a;pointer-events:none}
-#expBar b{position:absolute;left:14px;top:5px;font:700 14px var(--display);color:#ffe27a}
-#expBar .xb{position:absolute;left:76px;right:14px;top:7px;height:16px;border-radius:8px;background:#1b1f3a;border:1.5px solid #6f7396;overflow:hidden}
+#expBar b{position:absolute;left:14px;top:7px;height:19px;line-height:19px;font:700 14px/19px var(--display);color:#ffe27a}
+#expBar .xb{position:absolute;left:54px;right:14px;top:7px;height:16px;border-radius:8px;background:#1b1f3a;border:1.5px solid #6f7396;overflow:hidden}
 #expBar .xb i{position:absolute;inset:0;background:linear-gradient(#ffe98a,#f0b21e 55%,#c98410);box-shadow:inset 0 2px 3px rgba(255,255,255,.55)}
 #expBar .xb span{position:absolute;inset:0;display:grid;place-items:center;font:800 12px var(--body);color:#3a2300;text-shadow:0 1px 0 rgba(255,255,255,.5)}
 #logBox{position:absolute;left:14px;bottom:44px;width:min(300px,28vw);height:100px;padding:8px 12px;border-radius:8px;background:rgba(14,16,32,.62);border:1px solid rgba(255,255,255,.18);font-size:12px;line-height:1.55;color:#e8ecff;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none}
@@ -228,6 +231,7 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 
 #loadv{position:absolute;inset:0;z-index:99;background:#05030c;display:none;opacity:0;transition:opacity .18s;pointer-events:all}
 #loadv.show{display:block}#loadv.in{opacity:1}
+#loadv .lg{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:min(480px,68vw);max-height:46vh;object-fit:contain;filter:drop-shadow(0 0 14px rgba(140,110,255,.22));pointer-events:none;user-select:none}
 #loadv .lw{position:absolute;left:50%;bottom:11vh;transform:translateX(-50%);width:min(620px,86vw);display:flex;flex-direction:column;gap:12px}
 #loadv .lt{font:500 clamp(15px,2.2vh,19px)/1.5 var(--body);color:#e9e4d6;text-align:center;min-height:2.9em;text-shadow:0 1px 2px #000}
 #loadv .lt b{font:400 1.1em var(--display);color:#ffd45a;letter-spacing:.06em;margin-right:6px}
@@ -356,6 +360,22 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 #start .logo .l1::before{color:#44208a;-webkit-text-stroke:15px #44208a}
 #start .logo .l2::before{color:#40083c;-webkit-text-stroke:15px #40083c}
 #start .logo .globe{filter:drop-shadow(0 8px 10px rgba(10,15,70,.35))}
+#pname,.npcn{position:fixed;z-index:5;pointer-events:none;transform:translate(-50%,-100%);text-align:center;font:600 11px/1.55 'Malgun Gothic','Noto Sans KR','Apple SD Gothic Neo',sans-serif;color:#eef0f4;white-space:nowrap;display:none;text-shadow:0 0 2px rgba(0,0,0,.9),0 1px 2px rgba(0,0,0,.85),1px 0 1px rgba(0,0,0,.6),-1px 0 1px rgba(0,0,0,.6)}#pname small,#pname b{display:block;font:inherit;color:inherit}.npcn{display:none;color:#ffd84a}
+#lootHud .who small{margin-top:4px}
+#bossBar{bottom:auto;top:56px;width:min(480px,44vw)}
+#bossBar{width:min(480px,44vw);top:50px;text-align:left}
+#bossBar::before{content:'';position:absolute;left:-6px;top:-7px;width:46px;height:50px;background:#e8c36a;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);z-index:3}
+#bossBar::after{content:'100';position:absolute;left:-3px;top:-4px;width:40px;height:44px;background:linear-gradient(#e0483a,#6e1010);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:flex;align-items:center;justify-content:center;font:800 14px var(--display);color:#fff;z-index:4;text-shadow:0 1px 2px #000}
+#bossBar .bar{height:26px;margin-left:24px;border-radius:5px;border:2px solid #1a0b0e;background:#2a0f12;box-shadow:0 0 0 2px #7a5a3a,0 4px 10px rgba(0,0,0,.6)}
+#bossBar .bar i{border-radius:3px;background:linear-gradient(#ff8c66,#d8372a 55%,#9a1c1c);box-shadow:inset 0 2px 2px rgba(255,255,255,.35)}
+#bossName{position:absolute;left:40px;top:4px;z-index:2;margin:0;font:700 13px var(--body);letter-spacing:0;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}
+#bossX{right:10px;top:4px;z-index:2;font:800 13px var(--body);color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}
+#mythBanner{position:fixed;left:50%;top:26%;transform:translateX(-50%);z-index:60;text-align:center;pointer-events:none;animation:mythin 5.2s both}
+#mythBanner small{display:block;font:700 18px var(--display);color:#ffe9a0;text-shadow:0 0 8px #ff9a2a,0 2px 3px #000;letter-spacing:.1em}
+#mythBanner b{display:block;font:800 54px var(--display);background:linear-gradient(#fff6c8,#ffd45a 55%,#ff9a2a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px #5a2a00;filter:drop-shadow(0 0 14px rgba(255,190,70,.9));margin:2px 0}
+#mythBanner span{display:block;font:600 15px var(--body);color:#fff;text-shadow:0 1px 3px #000}
+@keyframes mythin{0%{opacity:0;transform:translateX(-50%) scale(.6)}10%{opacity:1;transform:translateX(-50%) scale(1.08)}16%{transform:translateX(-50%) scale(1)}85%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px)}}
+#bossName{left:24px!important;right:0;text-align:center;font:700 14px var(--body)!important;top:5px!important;letter-spacing:.04em}#bossX{right:8px!important;top:5px!important;font:800 14px var(--body)!important}
 </style>
 <div id="stage"></div>
 <div id="floaters"></div>
@@ -371,19 +391,19 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 
 <div id="hud" hidden>
   <div id="tl" class="g">
-    <div id="lootHud"><i class="coin">🪙</i><div><small>플래톤</small><b id="goldN">0</b></div><div class="who"><b id="clsName">Lv.99 전사</b><small>&lt;모험가&gt;</small></div></div>
+    <div id="lootHud"><i class="coin">🪙</i><div><small>플래톤</small><b id="goldN">0</b></div><div class="who"><b id="clsName">Lv.99 동성인재개발교육원</b><small>&lt;모험의 시작&gt;</small></div></div>
     <div id="buff"></div>
     <div id="camMode">카메라: 쿼터뷰 (F5: 자동)</div>
   </div>
-  <div id="rp"><div id="mapPanel"><div class="mh"><b id="zoneName">마을</b><em id="zoneTag">안전 지역</em></div><canvas id="mini" width="300" height="270"></canvas></div><div id="quest"></div></div>
-  <div id="tr"><button id="btnMap" data-l="지도" data-i="🗺️"></button><button id="btnHelp" data-l="조작법" data-i="❓"></button><button id="btnClass" data-l="직업" data-i="🔄"></button><button id="btnSnd" data-l="효과음" data-i="🔊"></button><button id="btnBgm" data-l="배경음" data-i="🎵"></button><button id="btnInv" data-l="인벤(I)" data-i="🎒"></button><button id="btnChar" data-l="정보(U)" data-i="📋"></button><button id="btnCam" data-l="카메라" data-i="🎥"></button><button id="btnCalm" data-l="멀미" data-i="😵"></button></div>
+  <div id="rp"><div id="mapPanel"><div class="mh"><b id="zoneName">마을</b><em id="zoneTag">안전 지역</em><span id="mhz">M키로 확대</span></div><canvas id="mini" width="300" height="270"></canvas></div><div id="quest"></div></div>
+  <div id="tr"><button id="btnMap" data-l="지도" data-i="🗺️"></button><button id="btnHelp" data-l="조작법" data-i="❓"></button><button id="btnClass" data-l="직업" data-i="🔄"></button><button id="btnSnd" data-l="효과음" data-i="🔊"></button><button id="btnBgm" data-l="배경음" data-i="🎵"></button><button id="btnInv" data-l="인벤(I)" data-i="🎒"></button><button id="btnChar" data-l="정보(U)" data-i="📋"></button><button id="btnCam" data-l="카메라" data-i="🎥"></button><button id="btnShake" data-l="흔들림" data-i="📳"></button><button id="btnCalm" data-l="멀미" data-i="😵"></button></div>
   <div id="logBox"><div id="logL"></div></div>
-  <div id="expBar"><b>Lv.99</b><div class="xb"><i></i><span>EXP 100.00% (MAX)</span></div></div>
-  <div id="bossBar" hidden><div id="bossName">Lv.100 하늘의 폭군 드래곤</div><div class="bar"><i id="bossFill"></i></div><b id="bossX"></b></div>
+  <div id="pname"><small>&lt;모험의 시작&gt;</small><b>동성인재개발교육원</b></div><div id="expBar"><b>EXP</b><div class="xb"><i></i><span>EXP 100.00% (MAX)</span></div></div>
+  <div id="bossBar" hidden><div id="bossName">하늘의 폭군 드래곤</div><div class="bar"><i id="bossFill"></i></div><b id="bossX"></b></div>
   <div id="dim"></div><div id="flash"></div><div id="fedge"></div><div id="sline"></div><div id="wg"><div id="wgb"><i></i><i></i><div id="wgf" class="s0"></div></div><span>차징</span></div>
   <div id="toast"></div>
   <div id="mhp"></div>
-  <div id="pt"><canvas id="ptc" width="128" height="128"></canvas></div><b id="ptn">전사 Lv.99</b>
+  <div id="pt"><canvas id="ptc" width="128" height="128"></canvas></div><b id="ptn">Lv.99 동성인재개발교육원</b>
   <div id="npcTip" hidden><b>F</b>대화</div>
   <div id="dlg" hidden><div class="bg"></div><div class="lb t"></div><div class="lb b"></div><div class="esc"><b>ESC</b>= 그만 보기</div><div class="pt l" id="dlgPl"></div><div class="pt r" id="dlgPt"></div><div class="bx"><div class="nm" id="dlgNm"></div><div class="ky"><em>다음</em><b>Enter</b> <em>종료</em><b>ESC</b></div><div class="tx" id="dlgTx"></div><div class="enter" id="dlgNx">ENTER ▼</div></div></div>
   <div class="win" id="wShop" hidden style="left:5vw;top:11vh"><div class="wh"><b>🛒 상점 · 대장장이 브론</b><button class="wx">✕</button></div><div class="wb"><div class="sgrid" id="shopGrid"></div></div><div class="wf"><div id="shopInfo"></div><div class="wrow"><span>보유 <b id="shopGold">0 플래톤</b></span><button id="shopBuy" class="wbtn">구매</button></div></div></div>
@@ -423,7 +443,7 @@ body{font-weight:500;letter-spacing:0;-webkit-font-smoothing:antialiased;text-re
 <div id="over" hidden><h2 id="overT"></h2><p id="overP"></p></div>
 <div id="tip" hidden></div>
 <div id="fade"></div>
-<div id="loadv"><div class="lw"><div class="lt" id="loadTip"></div><div class="lb"><i id="loadBar"></i></div><div class="ll" id="loadTx">로딩중</div></div></div>
+<div id="loadv"><img class="lg" src="logo.png" alt="플래닛 어드벤처" draggable="false"><div class="lw"><div class="lt" id="loadTip"></div><div class="lb"><i id="loadBar"></i></div><div class="ll" id="loadTx">로딩중</div></div></div>
 <script src="lib/three.min.js"></script>
 <script src="lib/fflate.min.js"></script>
 <script src="lib/NURBSUtils.js"></script>
