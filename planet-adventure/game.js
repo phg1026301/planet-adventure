@@ -137,7 +137,7 @@ else{for(const e of S.ents){if(e.state==='dead')continue;if(arc(p.n,e.n)<p.rad+e
 if(p.life<=0)dead=true;if(dead){S.world.remove(p.m);S.projs.splice(i,1);}}}
 
 /* ---------- 데미지 ---------- */
-function hurt(d,srcN,kb){if(S.dead||pl.inv>0||pl.god>0||!S.running)return false;{const ent=srcN?S.ents.find(x=>x.n===srcN):null,key=ent||'env';if(!pl.hm)pl.hm=new Map();if((pl.hm.get(key)||0)>S.t)return false;pl.hm.set(key,S.t+0.65);if(pl.hm.size>40)for(const [k,v] of pl.hm)if(v<S.t)pl.hm.delete(k);}d*=100;pl.hp=Math.max(0,pl.hp-d);pl.flash=0.18;pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;$('vig').classList.add('on');setTimeout(()=>$('vig').classList.remove('on'),120);sfx('hurt');
+function hurt(d,srcN,kb){if(S.dead||pl.inv>0||pl.god>0||!S.running)return false;{const ent=srcN?S.ents.find(x=>x.n===srcN):null,key=ent||'env';if(!pl.hm)pl.hm=new Map();if((pl.hm.get(key)||0)>S.t)return false;pl.hm.set(key,S.t+0.65);if(pl.hm.size>40)for(const [k,v] of pl.hm)if(v<S.t)pl.hm.delete(k);}d*=100;if(S.zone==='boss'&&S.boss&&S.boss.state!=='dead')d=Math.max(d,pl.hp);pl.hp=Math.max(0,pl.hp-d);pl.flash=0.18;pl.atkT=0;pl.comboT=0;pl.combo=0;pl.lungeT=0;$('vig').classList.add('on');setTimeout(()=>$('vig').classList.remove('on'),120);sfx('hurt');
 floater(wp(pl.n,2.1),'-'+Math.round(d),'#ff7a6b');
 if(srcN){const dir=dirTo(pl.n,srcN);if(dir){pl.kbDir=dir.negate();pl.kbR=Math.min(kb||0.8,1.4)*0.5;}}
 if(pl.hp<=0)die();return true;}
@@ -475,7 +475,7 @@ if(!q.mats){q.mats=[];q.o.traverse(m=>{if(m.isMesh&&!m.userData.om){const arr=Ar
 for(const x of q.mats){x.opacity=q.a;x.depthWrite=q.a>0.95;}}}
 
 function updatePlayer(dt){const ref=pl.ref;if(!ref)return;
-pl.inv=Math.max(0,pl.inv-dt);pl.god=Math.max(0,pl.god-dt);pl.skCd=Math.max(0,pl.skCd-dt);meteorTick(dt);for(const k in pl.cds)pl.cds[k]=Math.max(0,pl.cds[k]-dt);parryTick(dt);pl.dashCd=Math.max(0,(pl.dashCd||0)-dt);if(!S.dead){pl.hp=Math.min(pl.mhp,pl.hp+pl.mhp/1.5*dt);pl.st=Math.min(pl.mst,pl.st+pl.mst/1.5*dt);}pl.stDelay-=dt;pl.flash=Math.max(0,pl.flash-dt);
+pl.inv=Math.max(0,pl.inv-dt);pl.god=Math.max(0,pl.god-dt);pl.skCd=Math.max(0,pl.skCd-dt);meteorTick(dt);for(const k in pl.cds)pl.cds[k]=Math.max(0,pl.cds[k]-dt);parryTick(dt);pl.dashCd=Math.max(0,(pl.dashCd||0)-dt);pl.stDelay-=dt;pl.flash=Math.max(0,pl.flash-dt);
 if(S.dead){orient(ref.root,pl.n,pl.f,0);return;}
 const mv=S.running?moveVec():null;const run=!!(K.ShiftLeft||K.ShiftRight||DT.run||Math.hypot(joy.x,joy.y)>0.8);if(pl.sk)tickSkill(dt);{const aa=K.ArrowUp||K.ArrowDown||K.ArrowLeft||K.ArrowRight,nw=performance.now();if(aa)DT.clr=nw;else if(DT.run&&nw-DT.clr>130)DT.run=false;}
 if(S.running){if(S.quarter){const b=QB.clone();b.addScaledVector(pl.n,-b.dot(pl.n));if(b.lengthSq()>1e-6)pl.cf.copy(b.normalize());}if(S.camAuto){pl.pitch+=(0.4-pl.pitch)*Math.min(1,2*dt);if(mv&&pl.roll<=0&&pl.atkT<=0&&!(S.lock&&S.lock.state!=='dead')){const ang=Math.atan2(pl.n.dot(V3(0,0,0).crossVectors(pl.cf,mv)),pl.cf.dot(mv));if(Math.abs(ang)<1.75)pl.cf.applyAxisAngle(pl.n,Math.sin(ang)*1.35*dt);}}
